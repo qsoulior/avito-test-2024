@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type BidStatus string
 
 const (
@@ -11,10 +13,15 @@ const (
 )
 
 type Bid struct {
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	Status          string `json:"status"`
-	TenderID        string `json:"tenderId"`
-	OrganizationID  string `json:"organizationId"`
-	CreatorUsername string `json:"creatorUsername"`
+	ID              string    `json:"id"`
+	Name            string    `json:"name"`
+	Description     string    `json:"description"`
+	Status          string    `json:"status"`
+	TenderID        string    `json:"tenderId"`
+	OrganizationID  string    `json:"organizationId"`
+	CreatorUsername string    `json:"creatorUsername"`
+	AuthorType      string    `json:"authorType"`
+	AuthorID        string    `json:"authorId"`
+	Version         int       `json:"version"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
