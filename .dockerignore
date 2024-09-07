@@ -1,7 +1,4 @@
 .idea
-*.iml
 .git/
-.gradle
-gradle
-out/
+task
 Dockerfile
