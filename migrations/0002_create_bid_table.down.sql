@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS bid;
+DROP TYPE IF EXISTS bid_author_type;
+DROP TYPE IF EXISTS bid_status;

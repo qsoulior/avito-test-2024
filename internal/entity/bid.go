@@ -12,16 +12,21 @@ const (
 	BidRejected  BidStatus = "Rejected"
 )
 
+type BidAuthorType string
+
+const (
+	BidOrganization BidAuthorType = "Organization"
+	BidUser         BidAuthorType = "User"
+)
+
 type Bid struct {
-	ID              string    `json:"id"`
-	Name            string    `json:"name"`
-	Description     string    `json:"description"`
-	Status          string    `json:"status"`
-	TenderID        string    `json:"tenderId"`
-	OrganizationID  string    `json:"organizationId"`
-	CreatorUsername string    `json:"creatorUsername"`
-	AuthorType      string    `json:"authorType"`
-	AuthorID        string    `json:"authorId"`
-	Version         int       `json:"version"`
-	CreatedAt       time.Time `json:"createdAt"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Status      string        `json:"status"`
+	TenderID    string        `json:"tenderId"`
+	AuthorType  BidAuthorType `json:"authorType"`
+	AuthorID    string        `json:"authorId"`
+	Version     int           `json:"version"`
+	CreatedAt   time.Time     `json:"createdAt"`
 }
