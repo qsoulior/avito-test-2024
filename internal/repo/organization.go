@@ -9,4 +9,5 @@ import (
 
 type Organization interface {
 	GetByID(ctx context.Context, organizationID uuid.UUID) (*entity.Organization, error)
+	GetByEmployeeID(ctx context.Context, employeeID uuid.UUID) ([]entity.Organization, error)
 }

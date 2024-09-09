@@ -44,7 +44,7 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 
 func (r *tenderPG) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT DISTINCT ON (id) * 
-		FROM tender WHERE $1 IS NULL OR service_type = $1 
+		FROM tender WHERE ($1 IS NULL OR service_type = $1) AND status = 'PUBLISHED' 
 		ORDER_BY version DESC, name ASC 
 		LIMIT $2 OFFSET $3`
 
@@ -70,7 +70,7 @@ func (r *tenderPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limi
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Tender])
 }
 
-func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data TenderData) (*entity.Tender, error) {
+func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data entity.TenderData) (*entity.Tender, error) {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
 		return nil, err

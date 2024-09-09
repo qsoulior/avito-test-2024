@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"time"
@@ -9,7 +8,15 @@ import (
 	"github.com/google/uuid"
 )
 
+// TenderServiceType
 type TenderServiceType string
+
+func (t TenderServiceType) Validate() error {
+	if !slices.Contains(TenderServiceTypes, t) {
+		return fmt.Errorf("service type must be one of: %v", TenderServiceTypes)
+	}
+	return nil
+}
 
 const (
 	TenderConstruction TenderServiceType = "Construction"
@@ -19,7 +26,15 @@ const (
 
 var TenderServiceTypes = []TenderServiceType{TenderConstruction, TenderDelivery, TenderManufacture}
 
+// TenderStatus
 type TenderStatus string
+
+func (s TenderStatus) Validate() error {
+	if !slices.Contains(TenderStatuses, s) {
+		return fmt.Errorf("status must be one of: %v", TenderStatuses)
+	}
+	return nil
+}
 
 const (
 	TenderCreated   TenderStatus = "Created"
@@ -29,6 +44,7 @@ const (
 
 var TenderStatuses = []TenderStatus{TenderCreated, TenderPublished, TenderClosed}
 
+// Tender
 type Tender struct {
 	ID             uuid.UUID
 	Name           string
@@ -43,23 +59,44 @@ type Tender struct {
 
 func (t Tender) Validate() error {
 	if len(t.Name) > 100 {
-		return errors.New("name is too long (max 100)")
+		return ErrTenderName
 	}
 
 	if len(t.Description) > 500 {
-		return errors.New("description is too long (max 500)")
+		return ErrTenderDescription
 	}
 
-	if !slices.Contains(TenderServiceTypes, t.ServiceType) {
-		return fmt.Errorf("service type must be one of: %v", TenderServiceTypes)
+	return t.ServiceType.Validate()
+}
+
+const (
+	TenderNameLength        = 100
+	TenderDescriptionLength = 500
+)
+
+var (
+	ErrTenderName        = fmt.Errorf("name is too long (max %d)", TenderNameLength)
+	ErrTenderDescription = fmt.Errorf("description is too long (max %d)", TenderDescriptionLength)
+)
+
+// TenderData
+type TenderData struct {
+	Name        *string
+	Description *string
+	ServiceType *TenderServiceType
+}
+
+func (d TenderData) Validate() error {
+	if d.Name != nil && len(*d.Name) > 100 {
+		return ErrTenderName
 	}
 
-	if !slices.Contains(TenderStatuses, t.Status) {
-		return fmt.Errorf("status must be one of: %v", TenderStatuses)
+	if d.Description != nil && len(*d.Description) > 500 {
+		return ErrTenderDescription
 	}
 
-	if t.Version < 1 {
-		return errors.New("version must be greater than or equal to 1")
+	if d.ServiceType != nil {
+		return d.ServiceType.Validate()
 	}
 
 	return nil
