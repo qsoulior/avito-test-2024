@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS tender (
     service_type tender_service_type NOT NULL,
     status tender_status NOT NULL,
     organization_id UUID NOT NULL,
+    creator_username VARCHAR(50) NOT NULL,
     version INT CHECK (version >= 1) DEFAULT 1,
-    created_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type TenderServiceType string
 
@@ -19,12 +23,13 @@ const (
 )
 
 type Tender struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Description    string       `json:"description"`
-	ServiceType    string       `json:"serviceType"`
-	Status         TenderStatus `json:"status"`
-	OrganizationID string       `json:"organizationId"`
-	Version        int          `json:"version"`
-	CreatedAt      time.Time    `json:"createdAt"`
+	ID              uuid.UUID         `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	ServiceType     TenderServiceType `json:"serviceType"`
+	Status          TenderStatus      `json:"status"`
+	OrganizationID  uuid.UUID         `json:"-"`
+	CreatorUsername string            `json:"-"`
+	Version         int               `json:"version"`
+	CreatedAt       time.Time         `json:"createdAt"`
 }
