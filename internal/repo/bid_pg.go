@@ -28,7 +28,7 @@ func (r *bidPG) Create(ctx context.Context, bid entity.Bid) (*entity.Bid, error)
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	return collectExactlyOneRow[entity.Bid](rows)
 }
 
 func (r *bidPG) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, error) {
@@ -39,7 +39,7 @@ func (r *bidPG) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 		return nil, err
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	return collectOneRow[entity.Bid](rows)
 }
 
 func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
@@ -83,7 +83,7 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data BidData) (*ent
 		return nil, err
 	}
 
-	bid, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	bid, err := collectOneRow[entity.Bid](rows)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data BidData) (*ent
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	return collectExactlyOneRow[entity.Bid](rows)
 }
 
 func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error) {
@@ -124,7 +124,7 @@ func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, status entity
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	return collectExactlyOneRow[entity.Bid](rows)
 }
 
 func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*entity.Bid, error) {
@@ -140,7 +140,7 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		return nil, err
 	}
 
-	bid, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	bid, err := collectExactlyOneRow[entity.Bid](rows)
 	if err != nil {
 		return nil, err
 	}
@@ -159,5 +159,5 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
+	return collectExactlyOneRow[entity.Bid](rows)
 }

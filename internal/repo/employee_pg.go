@@ -6,7 +6,6 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/entity"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/postgres"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type employeePG struct {
@@ -28,7 +27,7 @@ func (r *employeePG) GetByID(ctx context.Context, employeeID uuid.UUID) (*entity
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Employee])
+	return collectExactlyOneRow[entity.Employee](rows)
 }
 
 func (r *employeePG) GetByUsername(ctx context.Context, username string) (*entity.Employee, error) {
@@ -39,7 +38,7 @@ func (r *employeePG) GetByUsername(ctx context.Context, username string) (*entit
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Employee])
+	return collectExactlyOneRow[entity.Employee](rows)
 }
 
 func (r *employeePG) GetByUsernameAndOrganizationID(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error) {
@@ -52,5 +51,5 @@ func (r *employeePG) GetByUsernameAndOrganizationID(ctx context.Context, usernam
 		return nil, err
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Employee])
+	return collectOneRow[entity.Employee](rows)
 }

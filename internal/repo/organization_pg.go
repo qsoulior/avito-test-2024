@@ -6,7 +6,6 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/entity"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/postgres"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type organizationPG struct {
@@ -21,5 +20,5 @@ func (r *organizationPG) GetByID(ctx context.Context, organizationID uuid.UUID) 
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Organization])
+	return collectExactlyOneRow[entity.Organization](rows)
 }

@@ -28,7 +28,7 @@ func (r *tenderPG) Create(ctx context.Context, tender entity.Tender) (*entity.Te
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	return collectExactlyOneRow[entity.Tender](rows)
 }
 
 func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Tender, error) {
@@ -39,7 +39,7 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 		return nil, err
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	return collectOneRow[entity.Tender](rows)
 }
 
 func (r *tenderPG) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
@@ -83,7 +83,7 @@ func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data TenderDa
 		return nil, err
 	}
 
-	tender, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	tender, err := collectOneRow[entity.Tender](rows)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data TenderDa
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	return collectExactlyOneRow[entity.Tender](rows)
 }
 
 func (r *tenderPG) UpdateStatus(ctx context.Context, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
@@ -128,7 +128,7 @@ func (r *tenderPG) UpdateStatus(ctx context.Context, tenderID uuid.UUID, status 
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	return collectExactlyOneRow[entity.Tender](rows)
 }
 
 func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int) (*entity.Tender, error) {
@@ -144,7 +144,7 @@ func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int
 		return nil, err
 	}
 
-	tender, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	tender, err := collectExactlyOneRow[entity.Tender](rows)
 	if err != nil {
 		return nil, err
 	}
@@ -163,5 +163,5 @@ func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int
 		return nil, err
 	}
 
-	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Tender])
+	return collectExactlyOneRow[entity.Tender](rows)
 }
