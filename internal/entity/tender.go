@@ -28,8 +28,8 @@ type Tender struct {
 	Description     string            `json:"description"`
 	ServiceType     TenderServiceType `json:"serviceType"`
 	Status          TenderStatus      `json:"status"`
-	OrganizationID  uuid.UUID         `json:"organization_id"`
-	CreatorUsername string            `json:"creator_username"`
+	OrganizationID  uuid.UUID         `json:"organizationId"`
+	CreatorUsername string            `json:"creatorUsername"`
 	Version         int               `json:"version"`
 	CreatedAt       time.Time         `json:"createdAt"`
 }

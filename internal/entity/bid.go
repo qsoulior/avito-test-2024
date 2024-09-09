@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type BidStatus string
 
@@ -20,13 +24,14 @@ const (
 )
 
 type Bid struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Status      string        `json:"status"`
-	TenderID    string        `json:"tenderId"`
-	AuthorType  BidAuthorType `json:"authorType"`
-	AuthorID    string        `json:"authorId"`
-	Version     int           `json:"version"`
-	CreatedAt   time.Time     `json:"createdAt"`
+	ID              uuid.UUID     `json:"id"`
+	Name            string        `json:"name"`
+	Description     string        `json:"description"`
+	Status          string        `json:"status"`
+	TenderID        uuid.UUID     `json:"tenderId"`
+	AuthorType      BidAuthorType `json:"authorType"`
+	AuthorID        uuid.UUID     `json:"authorId"`
+	CreatorUsername string        `json:"creatorUsername"`
+	Version         int           `json:"version"`
+	CreatedAt       time.Time     `json:"createdAt"`
 }

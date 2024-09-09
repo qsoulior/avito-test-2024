@@ -45,7 +45,7 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 func (r *tenderPG) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT DISTINCT ON (id) * 
 		FROM tender WHERE $1 IS NULL OR service_type = $1 
-		ORDER_BY version DESC 
+		ORDER_BY version DESC, name ASC 
 		LIMIT $2 OFFSET $3`
 
 	rows, err := r.Pool.Query(ctx, query, serviceType, limit, offset)
@@ -59,7 +59,7 @@ func (r *tenderPG) GetByServiceType(ctx context.Context, serviceType *entity.Ten
 func (r *tenderPG) GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT DISTINCT ON (id) * 
 		FROM tender WHERE creator_username = $1 
-		ORDER_BY version DESC 
+		ORDER_BY version DESC, name ASC 
 		LIMIT $2 OFFSET $3`
 
 	rows, err := r.Pool.Query(ctx, query, username, limit, offset)
