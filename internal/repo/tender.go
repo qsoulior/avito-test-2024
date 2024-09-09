@@ -19,4 +19,5 @@ type Tender interface {
 	GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Tender, error)
 	Update(ctx context.Context, tenderID uuid.UUID, username string, data TenderData) (*entity.Tender, error)
 	UpdateStatus(ctx context.Context, tenderID uuid.UUID, username string, status entity.TenderStatus) (*entity.Tender, error)
+	Rollback(ctx context.Context, tenderID uuid.UUID, username string, version int) (*entity.Tender, error)
 }
