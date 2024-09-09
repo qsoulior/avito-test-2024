@@ -17,8 +17,8 @@ type Tender interface {
 	Create(ctx context.Context, tender entity.Tender) (*entity.Tender, error)
 	GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Tender, error)
 	GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error)
-	GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Tender, error)
-	Update(ctx context.Context, tenderID uuid.UUID, username string, data TenderData) (*entity.Tender, error)
-	UpdateStatus(ctx context.Context, tenderID uuid.UUID, username string, status entity.TenderStatus) (*entity.Tender, error)
-	Rollback(ctx context.Context, tenderID uuid.UUID, username string, version int) (*entity.Tender, error)
+	GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Tender, error)
+	Update(ctx context.Context, tenderID uuid.UUID, data TenderData) (*entity.Tender, error)
+	UpdateStatus(ctx context.Context, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error)
+	Rollback(ctx context.Context, tenderID uuid.UUID, version int) (*entity.Tender, error)
 }

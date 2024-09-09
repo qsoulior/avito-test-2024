@@ -30,15 +30,15 @@ const (
 var TenderStatuses = []TenderStatus{TenderCreated, TenderPublished, TenderClosed}
 
 type Tender struct {
-	ID              uuid.UUID         `json:"id"`
-	Name            string            `json:"name"`
-	Description     string            `json:"description"`
-	ServiceType     TenderServiceType `json:"serviceType"`
-	Status          TenderStatus      `json:"status"`
-	OrganizationID  uuid.UUID         `json:"organizationId"`
-	CreatorUsername string            `json:"creatorUsername"`
-	Version         int               `json:"version"`
-	CreatedAt       time.Time         `json:"createdAt"`
+	ID             uuid.UUID
+	Name           string
+	Description    string
+	ServiceType    TenderServiceType
+	Status         TenderStatus
+	OrganizationID uuid.UUID
+	CreatorID      uuid.UUID
+	Version        int
+	CreatedAt      time.Time
 }
 
 func (t Tender) Validate() error {

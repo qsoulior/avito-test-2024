@@ -19,8 +19,8 @@ var OrganizationTypes = []OrganizationType{OrganizationIE, OrganizationLLC, Orga
 type Organization struct {
 	ID          uuid.UUID
 	Name        string
-	Description string
-	Type        OrganizationType
+	Description *string
+	Type        *OrganizationType
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

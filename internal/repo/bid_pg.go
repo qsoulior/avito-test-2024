@@ -21,9 +21,9 @@ func NewBidPG(pg *postgres.Postgres) Bid {
 }
 
 func (r *bidPG) Create(ctx context.Context, bid entity.Bid) (*entity.Bid, error) {
-	const query = `INSERT INTO bid (name, description, status, tender_id, author_type, author_id, creator_username) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`
+	const query = `INSERT INTO bid (name, description, status, tender_id, organization_id, creator_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
 
-	rows, err := r.Pool.Query(ctx, query, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.AuthorType, bid.AuthorID, bid.CreatorUsername)
+	rows, err := r.Pool.Query(ctx, query, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,13 +42,13 @@ func (r *bidPG) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
 }
 
-func (r *bidPG) GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Bid, error) {
+func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
 	const query = `SELECT DISTINCT ON (id) * 
-		FROM bid WHERE creator_username = $1 
+		FROM bid WHERE creator_id = $1 
 		ORDER_BY version DESC, name ASC
 		LIMIT $2 OFFSET $3`
 
-	rows, err := r.Pool.Query(ctx, query, username, limit, offset)
+	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +56,13 @@ func (r *bidPG) GetByCreatorUsername(ctx context.Context, username string, limit
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Bid])
 }
 
-func (r *bidPG) GetByTenderID(ctx context.Context, bidID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
+func (r *bidPG) GetByTenderID(ctx context.Context, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
 	const query = `SELECT DISTINCT ON (id) * 
-		FROM bid WHERE $1 IS NULL OR service_type = $1 
-		ORDER_BY version DESC , name ASC
+		FROM bid WHERE tender_id = $1 
+		ORDER_BY version DESC, name ASC
 		LIMIT $2 OFFSET $3`
 
-	rows, err := r.Pool.Query(ctx, query, bidID, limit, offset)
+	rows, err := r.Pool.Query(ctx, query, tenderID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -70,15 +70,15 @@ func (r *bidPG) GetByTenderID(ctx context.Context, bidID uuid.UUID, limit int, o
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Bid])
 }
 
-func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, username string, data BidData) (*entity.Bid, error) {
+func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data BidData) (*entity.Bid, error) {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
 
-	const selectQuery = `SELECT * FROM bid WHERE id = $1 AND creator_username = $2 ORDER BY version DESC`
-	rows, err := tx.Query(ctx, selectQuery, bidID, username)
+	const selectQuery = `SELECT * FROM bid WHERE id = $1 ORDER BY version DESC`
+	rows, err := tx.Query(ctx, selectQuery, bidID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,9 +98,9 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, username string, da
 
 	bid.Version++
 
-	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, author_type, author_id, creator_username, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`
+	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
 
-	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.AuthorType, bid.AuthorID, bid.CreatorUsername, bid.Version)
+	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -113,13 +113,13 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, username string, da
 	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
 }
 
-func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, username string, status entity.BidStatus) (*entity.Bid, error) {
+func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error) {
 	const query = `UPDATE bid 
-	SET status = $3 
-	WHERE id = $1 AND creator_username = $2 AND version = (SELECT MAX(version) FROM bid WHERE id = $1 AND creator_username = $2) 
+	SET status = $2 
+	WHERE id = $1 AND version = (SELECT MAX(version) FROM bid WHERE id = $1) 
 	RETURNING *`
 
-	rows, err := r.Pool.Query(ctx, query, bidID, username, status)
+	rows, err := r.Pool.Query(ctx, query, bidID, status)
 	if err != nil {
 		return nil, err
 	}
@@ -127,15 +127,15 @@ func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, username stri
 	return pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByPos[entity.Bid])
 }
 
-func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, username string, version int) (*entity.Bid, error) {
+func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*entity.Bid, error) {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
 
-	const selectQuery = `SELECT * FROM bid WHERE id = $1 AND creator_username = $2 AND version = $3`
-	rows, err := tx.Query(ctx, selectQuery, bidID, username)
+	const selectQuery = `SELECT * FROM bid WHERE id = $1 AND version = $2`
+	rows, err := tx.Query(ctx, selectQuery, bidID, version)
 	if err != nil {
 		return nil, err
 	}
@@ -147,9 +147,9 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, username string, 
 
 	bid.Version++
 
-	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, author_type, author_id, creator_username, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`
+	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
 
-	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.AuthorType, bid.AuthorID, bid.CreatorUsername, bid.Version)
+	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
 	if err != nil {
 		return nil, err
 	}

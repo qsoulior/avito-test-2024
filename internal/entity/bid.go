@@ -31,16 +31,15 @@ const (
 var BidAuthorTypes = []BidAuthorType{BidOrganization, BidUser}
 
 type Bid struct {
-	ID              uuid.UUID     `json:"id"`
-	Name            string        `json:"name"`
-	Description     string        `json:"description"`
-	Status          BidStatus     `json:"status"`
-	TenderID        uuid.UUID     `json:"tenderId"`
-	AuthorType      BidAuthorType `json:"authorType"`
-	AuthorID        uuid.UUID     `json:"authorId"`
-	CreatorUsername string        `json:"creatorUsername"`
-	Version         int           `json:"version"`
-	CreatedAt       time.Time     `json:"createdAt"`
+	ID             uuid.UUID
+	Name           string
+	Description    string
+	Status         BidStatus
+	TenderID       uuid.UUID
+	OrganizationID *uuid.UUID
+	CreatorID      uuid.UUID
+	Version        int
+	CreatedAt      time.Time
 }
 
 func (b Bid) Validate() error {
@@ -54,10 +53,6 @@ func (b Bid) Validate() error {
 
 	if !slices.Contains(BidStatuses, b.Status) {
 		return fmt.Errorf("status must be one of: %v", BidStatuses)
-	}
-
-	if !slices.Contains(BidAuthorTypes, b.AuthorType) {
-		return fmt.Errorf("author type must be one of: %v", BidAuthorTypes)
 	}
 
 	if b.Version < 1 {
