@@ -18,6 +18,13 @@ func (s BidStatus) Validate() error {
 	return nil
 }
 
+func (s BidStatus) ValidateDesicion() error {
+	if !slices.Contains(BidDecisions, s) {
+		return fmt.Errorf("bid decision must be one of: %v", BidDecisions)
+	}
+	return nil
+}
+
 const (
 	BidCreated   BidStatus = "Created"
 	BidPublished BidStatus = "Published"

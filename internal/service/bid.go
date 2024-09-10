@@ -22,12 +22,13 @@ var (
 )
 
 type Bid interface {
-	Create(ctx context.Context, username string, organizationID *uuid.UUID, bid entity.Bid) (*entity.Bid, error)
+	GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, error)
+	Create(ctx context.Context, username string, bid entity.Bid) (*entity.Bid, error)
 	GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Bid, error)
 	GetByTenderID(ctx context.Context, username string, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error)
 	GetStatus(ctx context.Context, username string, bidID uuid.UUID) (*entity.BidStatus, error)
 	UpdateStatus(ctx context.Context, username string, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error)
 	Update(ctx context.Context, username string, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error)
-	Submit(ctx context.Context, username string, bidID uuid.UUID, decision entity.BidStatus) (*entity.Bid, error)
+	SubmitDecision(ctx context.Context, username string, bidID uuid.UUID, decision entity.BidStatus) (*entity.Bid, error)
 	Rollback(ctx context.Context, username string, bidID uuid.UUID, version int) (*entity.Bid, error)
 }
