@@ -18,8 +18,7 @@ var (
 	ErrTenderLimit    = NewTypedError(
 		fmt.Sprintf("tender limit must be > 0 and <= %d", TenderLimitMax), ErrorTypeInvalid, nil,
 	)
-	ErrTenderVersion        = NewTypedError("tender version must be greater than 0", ErrorTypeInvalid, nil)
-	ErrEmployeeUnauthorized = NewTypedError("unauthorized employee", ErrorTypeUnauthorized, nil)
+	ErrTenderVersion = NewTypedError("tender version must be greater than 0", ErrorTypeInvalid, nil)
 )
 
 type Tender interface {

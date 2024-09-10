@@ -10,16 +10,15 @@ import (
 )
 
 type tenderV1 struct {
-	tenderRepo       repo.Tender
-	employeeRepo     repo.Employee
-	organizationRepo repo.Organization
+	tenderRepo      repo.Tender
+	employeeService Employee
 }
 
-func NewTenderV1(tender repo.Tender, employee repo.Employee, organization repo.Organization) Tender {
-	if tender == nil || employee == nil || organization == nil {
+func NewTenderV1(tenderRepo repo.Tender, employeeService Employee) Tender {
+	if tenderRepo == nil || employeeService == nil {
 		return nil
 	}
-	return &tenderV1{tender, employee, organization}
+	return &tenderV1{tenderRepo, employeeService}
 }
 
 func (s *tenderV1) getByID(ctx context.Context, tenderID uuid.UUID) (*entity.Tender, error) {
@@ -33,28 +32,6 @@ func (s *tenderV1) getByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 	return tender, nil
 }
 
-func (s *tenderV1) getUser(ctx context.Context, username string) (*entity.Employee, error) {
-	employee, err := s.employeeRepo.GetByUsername(ctx, username)
-	if err != nil {
-		if errors.Is(err, repo.ErrNoRows) {
-			return nil, ErrEmployeeUnauthorized
-		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
-	}
-	return employee, nil
-}
-
-func (s *tenderV1) getEmployee(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error) {
-	employee, err := s.employeeRepo.GetByUsernameAndOrganizationID(ctx, username, organizationID)
-	if err != nil {
-		if errors.Is(err, repo.ErrNoRows) {
-			return nil, ErrEmployeeUnauthorized
-		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
-	}
-	return employee, nil
-}
-
 // Create
 func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Tender) (*entity.Tender, error) {
 	err := tender.Validate()
@@ -62,7 +39,7 @@ func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Te
 		return nil, NewTypedError("tender data is invalid", ErrorTypeInvalid, err)
 	}
 
-	employee, err := s.getEmployee(ctx, username, tender.OrganizationID)
+	employee, err := s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +63,7 @@ func (s *tenderV1) GetStatus(ctx context.Context, username string, tenderID uuid
 	}
 
 	if tender.Status != entity.TenderPublished {
-		_, err = s.getEmployee(ctx, username, tender.OrganizationID)
+		_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +113,7 @@ func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, li
 		return nil, err
 	}
 
-	employee, err := s.getUser(ctx, username)
+	employee, err := s.employeeService.GetUser(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +137,7 @@ func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UU
 		return nil, err
 	}
 
-	_, err = s.getEmployee(ctx, username, tender.OrganizationID)
+	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +161,7 @@ func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID u
 		return nil, err
 	}
 
-	_, err = s.getEmployee(ctx, username, tender.OrganizationID)
+	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +185,7 @@ func (s *tenderV1) Rollback(ctx context.Context, username string, tenderID uuid.
 		return nil, err
 	}
 
-	_, err = s.getEmployee(ctx, username, tender.OrganizationID)
+	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
