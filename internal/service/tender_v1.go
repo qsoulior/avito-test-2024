@@ -3,25 +3,10 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/entity"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/repo"
 	"github.com/google/uuid"
-)
-
-const (
-	TenderLimitMax     = 100
-	TenderLimitDefault = 5
-)
-
-var (
-	ErrTenderNotExist = NewTypedError("tender does not exist", ErrorTypeNotExist, nil)
-	ErrTenderLimit    = NewTypedError(
-		fmt.Sprintf("limit must be > 0 and <= %d", TenderLimitMax), ErrorTypeInvalid, nil,
-	)
-	ErrTenderVersion        = NewTypedError("version must be greater than 0", ErrorTypeInvalid, nil)
-	ErrEmployeeUnauthorized = NewTypedError("unauthorized employee", ErrorTypeUnauthorized, nil)
 )
 
 type tenderV1 struct {
@@ -94,7 +79,7 @@ func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Te
 	return createdTender, nil
 }
 
-func (s *tenderV1) GetStatusByID(ctx context.Context, username string, tenderID uuid.UUID) (*entity.TenderStatus, error) {
+func (s *tenderV1) GetStatus(ctx context.Context, username string, tenderID uuid.UUID) (*entity.TenderStatus, error) {
 	tender, err := s.getByID(ctx, tenderID)
 	if err != nil {
 		return nil, err
@@ -124,8 +109,6 @@ func (s *tenderV1) getLimit(limit int) (int, error) {
 
 // GetByServiceType
 func (s *tenderV1) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
-	// TODO: check status
-
 	limit, err := s.getLimit(limit)
 	if err != nil {
 		return nil, err

@@ -13,7 +13,7 @@ type TenderServiceType string
 
 func (t TenderServiceType) Validate() error {
 	if !slices.Contains(TenderServiceTypes, t) {
-		return fmt.Errorf("service type must be one of: %v", TenderServiceTypes)
+		return fmt.Errorf("tender service type must be one of: %v", TenderServiceTypes)
 	}
 	return nil
 }
@@ -31,7 +31,7 @@ type TenderStatus string
 
 func (s TenderStatus) Validate() error {
 	if !slices.Contains(TenderStatuses, s) {
-		return fmt.Errorf("status must be one of: %v", TenderStatuses)
+		return fmt.Errorf("tender status must be one of: %v", TenderStatuses)
 	}
 	return nil
 }
@@ -58,11 +58,11 @@ type Tender struct {
 }
 
 func (t Tender) Validate() error {
-	if len(t.Name) > 100 {
+	if len(t.Name) > TenderNameLength {
 		return ErrTenderName
 	}
 
-	if len(t.Description) > 500 {
+	if len(t.Description) > TenderDescriptionLength {
 		return ErrTenderDescription
 	}
 
@@ -75,8 +75,8 @@ const (
 )
 
 var (
-	ErrTenderName        = fmt.Errorf("name is too long (max %d)", TenderNameLength)
-	ErrTenderDescription = fmt.Errorf("description is too long (max %d)", TenderDescriptionLength)
+	ErrTenderName        = fmt.Errorf("tender name is too long (max %d)", TenderNameLength)
+	ErrTenderDescription = fmt.Errorf("tender description is too long (max %d)", TenderDescriptionLength)
 )
 
 // TenderData
@@ -87,11 +87,11 @@ type TenderData struct {
 }
 
 func (d TenderData) Validate() error {
-	if d.Name != nil && len(*d.Name) > 100 {
+	if d.Name != nil && len(*d.Name) > TenderNameLength {
 		return ErrTenderName
 	}
 
-	if d.Description != nil && len(*d.Description) > 500 {
+	if d.Description != nil && len(*d.Description) > TenderDescriptionLength {
 		return ErrTenderDescription
 	}
 
