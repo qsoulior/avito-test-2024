@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"time"
@@ -9,7 +8,15 @@ import (
 	"github.com/google/uuid"
 )
 
+// BidStatus
 type BidStatus string
+
+func (s BidStatus) Validate() error {
+	if !slices.Contains(BidStatuses, s) {
+		return fmt.Errorf("bid status must be one of: %v", BidStatuses)
+	}
+	return nil
+}
 
 const (
 	BidCreated   BidStatus = "Created"
@@ -19,9 +26,20 @@ const (
 	BidRejected  BidStatus = "Rejected"
 )
 
-var BidStatuses = []BidStatus{BidCreated, BidPublished, BidCanceled, BidApproved, BidRejected}
+var (
+	BidStatuses  = []BidStatus{BidCreated, BidPublished, BidCanceled, BidApproved, BidRejected}
+	BidDecisions = []BidStatus{BidApproved, BidRejected}
+)
 
+// BidAuthorType
 type BidAuthorType string
+
+func (t BidAuthorType) Validate() error {
+	if !slices.Contains(BidAuthorTypes, t) {
+		return fmt.Errorf("bid author type must be one of: %v", BidAuthorTypes)
+	}
+	return nil
+}
 
 const (
 	BidOrganization BidAuthorType = "Organization"
@@ -30,6 +48,7 @@ const (
 
 var BidAuthorTypes = []BidAuthorType{BidOrganization, BidUser}
 
+// Bid
 type Bid struct {
 	ID             uuid.UUID
 	Name           string
@@ -43,20 +62,40 @@ type Bid struct {
 }
 
 func (b Bid) Validate() error {
-	if len(b.Name) > 100 {
-		return errors.New("name is too long (max 100)")
+	if len(b.Name) > BidNameLength {
+		return ErrBidName
 	}
 
-	if len(b.Description) > 500 {
-		return errors.New("description is too long (max 500)")
+	if len(b.Description) > BidDescriptionLength {
+		return ErrBidDescription
 	}
 
-	if !slices.Contains(BidStatuses, b.Status) {
-		return fmt.Errorf("status must be one of: %v", BidStatuses)
+	return b.Status.Validate()
+}
+
+const (
+	BidNameLength        = 100
+	BidDescriptionLength = 500
+)
+
+var (
+	ErrBidName        = fmt.Errorf("bid name is too long (max %d)", BidNameLength)
+	ErrBidDescription = fmt.Errorf("bid description is too long (max %d)", BidDescriptionLength)
+)
+
+// BidData
+type BidData struct {
+	Name        *string
+	Description *string
+}
+
+func (d BidData) Validate() error {
+	if d.Name != nil && len(*d.Name) > BidNameLength {
+		return ErrBidName
 	}
 
-	if b.Version < 1 {
-		return errors.New("version must be greater than or equal to 1")
+	if d.Description != nil && len(*d.Description) > BidDescriptionLength {
+		return ErrBidDescription
 	}
 
 	return nil

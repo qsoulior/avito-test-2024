@@ -70,7 +70,7 @@ func (r *bidPG) GetByTenderID(ctx context.Context, tenderID uuid.UUID, limit int
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Bid])
 }
 
-func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data BidData) (*entity.Bid, error) {
+func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error) {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
 		return nil, err
