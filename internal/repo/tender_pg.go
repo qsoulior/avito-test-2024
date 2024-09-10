@@ -42,13 +42,13 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 	return collectOneRow[entity.Tender](rows)
 }
 
-func (r *tenderPG) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
+func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT DISTINCT ON (id) * 
-		FROM tender WHERE ($1 IS NULL OR service_type = $1) AND status = 'PUBLISHED' 
+		FROM tender WHERE ($1 IS NULL OR service_type = ANY($1)) AND status = 'PUBLISHED' 
 		ORDER_BY version DESC, name ASC 
 		LIMIT $2 OFFSET $3`
 
-	rows, err := r.Pool.Query(ctx, query, serviceType, limit, offset)
+	rows, err := r.Pool.Query(ctx, query, serviceTypes, limit, offset)
 	if err != nil {
 		return nil, err
 	}

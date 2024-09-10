@@ -46,7 +46,7 @@ func (s *tenderV1) getLimit(limit int) (int, error) {
 }
 
 // GetByServiceType
-func (s *tenderV1) GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
+func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {
@@ -54,15 +54,15 @@ func (s *tenderV1) GetByServiceType(ctx context.Context, serviceType *entity.Ten
 	}
 
 	// Validate tender service type.
-	if serviceType != nil {
+	for _, serviceType := range serviceTypes {
 		err := serviceType.Validate()
 		if err != nil {
-			return nil, NewTypedError("tender type is invalid", ErrorTypeInvalid, err)
+			return nil, NewTypedError("tender service types is invalid", ErrorTypeInvalid, err)
 		}
 	}
 
 	// Get published tenders by service type.
-	tenders, err := s.tenderRepo.GetByServiceType(ctx, serviceType, limit, offset)
+	tenders, err := s.tenderRepo.GetByServiceType(ctx, serviceTypes, limit, offset)
 	if err != nil {
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
