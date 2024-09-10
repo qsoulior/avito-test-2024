@@ -32,12 +32,18 @@ func (s *employeeV1) GetUser(ctx context.Context, username string) (*entity.Empl
 }
 
 func (s *employeeV1) GetEmployee(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error) {
-	employee, err := s.employeeRepo.GetByUsernameAndOrganizationID(ctx, username, organizationID)
+	employee, err := s.GetUser(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.employeeRepo.HasOrganization(ctx, employee.ID, organizationID)
 	if err != nil {
 		if errors.Is(err, repo.ErrNoRows) {
-			return nil, ErrEmployeeUnauthorized
+			return nil, ErrEmployeeForbidden
 		}
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
+
 	return employee, nil
 }

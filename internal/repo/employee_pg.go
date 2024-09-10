@@ -2,10 +2,12 @@ package repo
 
 import (
 	"context"
+	"errors"
 
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/entity"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/postgres"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type employeePG struct {
@@ -41,15 +43,13 @@ func (r *employeePG) GetByUsername(ctx context.Context, username string) (*entit
 	return collectExactlyOneRow[entity.Employee](rows)
 }
 
-func (r *employeePG) GetByUsernameAndOrganizationID(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error) {
-	const query = `SELECT (e.id, e.username, e.first_name, e.last_name, e.created_at, e.updated_at) 
-		FROM employee e JOIN organization_responsible r ON e.id = r.user_id
-		WHERE e.username = $1 AND r.organization_id = $2`
+func (r *employeePG) HasOrganization(ctx context.Context, userID uuid.UUID, organizationID uuid.UUID) error {
+	const query = `SELECT * FROM organization_responsible WHERE user_id = $1 AND organization_id = $2`
 
-	rows, err := r.Pool.Query(ctx, query, username, organizationID)
-	if err != nil {
-		return nil, err
+	err := r.Pool.QueryRow(ctx, query, userID, organizationID).Scan()
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrNoRows
 	}
 
-	return collectOneRow[entity.Employee](rows)
+	return err
 }

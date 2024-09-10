@@ -23,6 +23,7 @@ var (
 
 type Tender interface {
 	Create(ctx context.Context, username string, tender entity.Tender) (*entity.Tender, error)
+	GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Tender, error)
 	GetByServiceType(ctx context.Context, serviceType *entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error)
 	GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Tender, error)
 	GetStatus(ctx context.Context, username string, tenderID uuid.UUID) (*entity.TenderStatus, error)

@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrEmployeeUnauthorized = NewTypedError("unauthorized employee", ErrorTypeUnauthorized, nil)
+	ErrEmployeeUnauthorized = NewTypedError("unauthorized user", ErrorTypeUnauthorized, nil)
+	ErrEmployeeForbidden    = NewTypedError("user is not employee of organization", ErrorTypeForbidden, nil)
 )
 
 type Employee interface {

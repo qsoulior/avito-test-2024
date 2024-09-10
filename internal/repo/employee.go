@@ -10,5 +10,5 @@ import (
 type Employee interface {
 	GetByID(ctx context.Context, employeeID uuid.UUID) (*entity.Employee, error)
 	GetByUsername(ctx context.Context, username string) (*entity.Employee, error)
-	GetByUsernameAndOrganizationID(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error)
+	HasOrganization(ctx context.Context, userID uuid.UUID, organizationID uuid.UUID) error
 }
