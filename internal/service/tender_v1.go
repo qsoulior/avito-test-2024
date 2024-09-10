@@ -123,7 +123,7 @@ func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, li
 
 // GetStatus
 func (s *tenderV1) GetStatus(ctx context.Context, username string, tenderID uuid.UUID) (*entity.TenderStatus, error) {
-	// Get user not associated with organization.
+	// Verify user not associated with organization.
 	_, err := s.employeeService.GetUser(ctx, username)
 	if err != nil {
 		return nil, err
@@ -151,11 +151,13 @@ func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID u
 		return nil, err
 	}
 
+	// Verify employee associated with organization.
 	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Update tender status.
 	tender, err = s.tenderRepo.UpdateStatus(ctx, tender.ID, status)
 	if err != nil {
 		return nil, NewTypedError("", ErrorTypeInternal, err)
@@ -166,20 +168,24 @@ func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID u
 
 // Update
 func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UUID, data entity.TenderData) (*entity.Tender, error) {
+	// Validate tender data.
 	if err := data.Validate(); err != nil {
 		return nil, NewTypedError("tender data is invalid", ErrorTypeInvalid, err)
 	}
 
+	// Get tender by id.
 	tender, err := s.GetByID(ctx, tenderID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Verify employee associated with organization.
 	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Update tender data.
 	tender, err = s.tenderRepo.Update(ctx, tender.ID, data)
 	if err != nil {
 		return nil, NewTypedError("", ErrorTypeInternal, err)
@@ -190,21 +196,25 @@ func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UU
 
 // Rollback
 func (s *tenderV1) Rollback(ctx context.Context, username string, tenderID uuid.UUID, version int) (*entity.Tender, error) {
+	// Validate tender version.
 	if version < 1 {
 		return nil, ErrTenderVersion
 	}
 
+	// Get tender by id.
 	tender, err := s.GetByID(ctx, tenderID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Verify employee associated with organization.
 	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
 
-	tender, err = s.tenderRepo.Rollback(ctx, tenderID, version)
+	// Rollback tender by id and version.
+	tender, err = s.tenderRepo.Rollback(ctx, tender.ID, version)
 	if err != nil {
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
