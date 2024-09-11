@@ -48,16 +48,18 @@ func (c *ConfigServer) ParseEnv() error {
 
 // ConfigPostgres
 type ConfigPostgres struct {
-	Conn string
+	Conn       string
+	Migrations string
 }
 
 const (
-	POSTGRES_CONN     = "POSTGRES_CONN"
-	POSTGRES_USERNAME = "POSTGRES_USERNAME"
-	POSTGRES_PASSWORD = "POSTGRES_PASSWORD"
-	POSTGRES_HOST     = "POSTGRES_HOST"
-	POSTGRES_PORT     = "POSTGRES_PORT"
-	POSTGRES_DATABASE = "POSTGRES_DATABASE"
+	POSTGRES_CONN       = "POSTGRES_CONN"
+	POSTGRES_USERNAME   = "POSTGRES_USERNAME"
+	POSTGRES_PASSWORD   = "POSTGRES_PASSWORD"
+	POSTGRES_HOST       = "POSTGRES_HOST"
+	POSTGRES_PORT       = "POSTGRES_PORT"
+	POSTGRES_DATABASE   = "POSTGRES_DATABASE"
+	POSTGRES_MIGRATIONS = "POSTGRES_MIGRATIONS"
 )
 
 func (c *ConfigPostgres) ParseEnv() error {
@@ -93,6 +95,8 @@ func (c *ConfigPostgres) ParseEnv() error {
 	}
 
 	c.Conn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username, password, host, port, database)
+	c.Migrations = os.Getenv(POSTGRES_MIGRATIONS)
+
 	return nil
 }
 

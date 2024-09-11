@@ -40,6 +40,9 @@ func Run() int {
 	}()
 	logger.Info("db conn established", "uri", cfg.Postgres.Conn)
 
+	// run migrations
+	Migrate(cfg, logger)
+
 	// repositories initialization
 	employeeRepo := repo.NewEmployeePG(pg)
 	tenderRepo := repo.NewTenderPG(pg)
