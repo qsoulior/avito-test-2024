@@ -11,6 +11,7 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/repo"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/service"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/transport/http"
+	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/httpserver"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/postgres"
 )
 
@@ -52,7 +53,8 @@ func Run() int {
 	logger.Info("services initialized")
 
 	// http server start
-	server := http.NewServer(cfg.Server.Addr, tenderService, bidService, logger)
+	mux := http.NewMux(tenderService, bidService, logger)
+	server := httpserver.New(mux, httpserver.Addr(cfg.Server.Addr))
 	server.Start(ctx)
 	logger.Info("http server started", "addr", cfg.Server.Addr)
 

@@ -7,25 +7,34 @@ import (
 )
 
 type Postgres struct {
-	Pool *pgxpool.Pool
+	Pool     *pgxpool.Pool
+	maxConns int32
 }
 
-func New(ctx context.Context, uri string) (*Postgres, error) {
+func New(ctx context.Context, uri string, opts ...Option) (*Postgres, error) {
+	pg := &Postgres{}
+
+	for _, opt := range opts {
+		opt(pg)
+	}
+
 	cfg, err := pgxpool.ParseConfig(uri)
 	if err != nil {
 		return nil, err
 	}
 
-	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	cfg.MaxConns = pg.maxConns
+
+	pg.Pool, err = pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := pool.Ping(ctx); err != nil {
+	if err := pg.Pool.Ping(ctx); err != nil {
 		return nil, err
 	}
 
-	return &Postgres{pool}, nil
+	return pg, nil
 }
 
 func (p *Postgres) Close() {
