@@ -211,8 +211,10 @@ func (r *bidReviewPG) Create(ctx context.Context, review entity.BidReview) (*ent
 }
 
 func (r *bidReviewPG) GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.BidReview, error) {
-	const query = `SELECT (id, description, bid_id, organization_id, creator_id, created_at) 
-		FROM (SELECT (id) FROM bid WHERE bid.creator_id = $1) as bid
+	const query = `SELECT (id, description, bid_id, organization_id, creator_id, created_at) FROM 
+		(SELECT DISTINCT ON (id) (id) 
+		FROM bid WHERE creator_id = $1 
+		ORDER BY id, version DESC) as bid
 		JOIN bid_review ON bid.id = bid_review.bid_id
 		LIMIT $2 OFFSET $3`
 

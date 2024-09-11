@@ -12,7 +12,7 @@ import (
 
 func Migrate(cfg *Config, logger *slog.Logger) {
 	if cfg.Postgres.Migrations == "" {
-		logger.Info("migrations path not found")
+		logger.Warn("migrations path not found")
 		return
 	}
 
@@ -27,8 +27,15 @@ func Migrate(cfg *Config, logger *slog.Logger) {
 
 	defer m.Close()
 
-	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err := m.Up(); err != nil {
+		if errors.Is(err, migrate.ErrNoChange) {
+			logger.Info("migrations have no changes")
+			return
+		}
+
 		logger.Error("failed to apply migrations", "err", err)
 		return
 	}
+
+	logger.Info("migrations applied")
 }

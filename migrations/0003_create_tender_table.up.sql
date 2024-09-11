@@ -1,5 +1,15 @@
-CREATE TYPE tender_service_type AS ENUM ('Construction', 'Delivery', 'Manufacture');
-CREATE TYPE tender_status AS ENUM ('Created', 'Published', 'Closed');
+DO $$ BEGIN
+    CREATE TYPE tender_service_type AS ENUM ('Construction', 'Delivery', 'Manufacture');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE tender_status AS ENUM ('Created', 'Published', 'Closed');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS tender (
     id UUID DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,

@@ -63,6 +63,8 @@ const (
 )
 
 func (c *ConfigPostgres) ParseEnv() error {
+	c.Migrations = os.Getenv(POSTGRES_MIGRATIONS)
+
 	conn, ok := os.LookupEnv(POSTGRES_CONN)
 	if ok {
 		c.Conn = conn
@@ -95,7 +97,6 @@ func (c *ConfigPostgres) ParseEnv() error {
 	}
 
 	c.Conn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username, password, host, port, database)
-	c.Migrations = os.Getenv(POSTGRES_MIGRATIONS)
 
 	return nil
 }

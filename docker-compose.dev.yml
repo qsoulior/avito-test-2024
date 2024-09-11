@@ -10,6 +10,7 @@ services:
     environment:
       SERVER_ADDRESS: 0.0.0.0:8080
       POSTGRES_CONN: postgres://devuser:devpassword@db:5432/devdb
+      POSTGRES_MIGRATIONS: migrations
 
   db:
     image: postgres:16.4-alpine3.20

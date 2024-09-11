@@ -1,5 +1,15 @@
-CREATE TYPE bid_status AS ENUM ('Created', 'Published', 'Canceled', 'Approved', 'Rejected');
-CREATE TYPE bid_author_type AS ENUM ('Organization', 'User');
+DO $$ BEGIN
+    CREATE TYPE bid_status AS ENUM ('Created', 'Published', 'Canceled', 'Approved', 'Rejected');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE bid_author_type AS ENUM ('Organization', 'User');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS bid (
     id UUID DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
