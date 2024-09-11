@@ -154,11 +154,12 @@ func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int
 		return nil, err
 	}
 
-	tender.Version++
+	const insertQuery = `INSERT INTO tender 
+		(id, name, description, service_type, status, organization_id, creator_id, version) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT MAX(version) FROM tender WHERE id = $1) + 1) 
+		RETURNING *`
 
-	const insertQuery = `INSERT INTO tender (id, name, description, service_type, status, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
-
-	rows, err = r.Pool.Query(ctx, insertQuery, tender.ID, tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID, tender.Version)
+	rows, err = r.Pool.Query(ctx, insertQuery, tender.ID, tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID)
 	if err != nil {
 		return nil, err
 	}

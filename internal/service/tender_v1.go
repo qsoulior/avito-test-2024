@@ -215,6 +215,9 @@ func (s *tenderV1) Rollback(ctx context.Context, username string, tenderID uuid.
 	// Rollback tender by id and version.
 	tender, err = s.tenderRepo.Rollback(ctx, tender.ID, version)
 	if err != nil {
+		if errors.Is(err, repo.ErrNoRows) {
+			return nil, ErrTenderVersionNotExist
+		}
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
 

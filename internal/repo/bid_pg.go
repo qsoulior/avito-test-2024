@@ -149,9 +149,10 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		return nil, err
 	}
 
-	bid.Version++
-
-	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
+	const insertQuery = `INSERT INTO bid
+		(id, name, description, status, tender_id, organization_id, creator_id, version)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT MAX(version) FROM bid WHERE id = $1) + 1) 
+		RETURNING *`
 
 	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
 	if err != nil {

@@ -14,8 +14,9 @@ const (
 )
 
 var (
-	ErrTenderNotExist = NewTypedError("tender does not exist", ErrorTypeNotExist, nil)
-	ErrTenderLimit    = NewTypedError(
+	ErrTenderNotExist        = NewTypedError("tender does not exist", ErrorTypeNotExist, nil)
+	ErrTenderVersionNotExist = NewTypedError("tender version does not exist", ErrorTypeNotExist, nil)
+	ErrTenderLimit           = NewTypedError(
 		fmt.Sprintf("tender limit must be > 0 and <= %d", TenderLimitMax), ErrorTypeInvalid, nil,
 	)
 	ErrTenderVersion = NewTypedError("tender version must be greater than 0", ErrorTypeInvalid, nil)

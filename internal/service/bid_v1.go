@@ -290,6 +290,9 @@ func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, 
 	// Rollback bid by id and version.
 	bid, err = s.bidRepo.Rollback(ctx, bid.ID, version)
 	if err != nil {
+		if errors.Is(err, repo.ErrNoRows) {
+			return nil, ErrBidVersionNotExist
+		}
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
 

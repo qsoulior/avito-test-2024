@@ -14,8 +14,9 @@ const (
 )
 
 var (
-	ErrBidNotExist = NewTypedError("bid does not exist", ErrorTypeNotExist, nil)
-	ErrBidLimit    = NewTypedError(
+	ErrBidNotExist        = NewTypedError("bid does not exist", ErrorTypeNotExist, nil)
+	ErrBidVersionNotExist = NewTypedError("bid version does not exist", ErrorTypeNotExist, nil)
+	ErrBidLimit           = NewTypedError(
 		fmt.Sprintf("bid limit must be > 0 and <= %d", BidLimitMax), ErrorTypeInvalid, nil,
 	)
 	ErrBidVersion = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
