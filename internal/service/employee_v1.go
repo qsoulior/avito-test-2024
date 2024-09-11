@@ -47,3 +47,12 @@ func (s *employeeV1) GetEmployee(ctx context.Context, username string, organizat
 
 	return employee, nil
 }
+
+func (s *employeeV1) GetByOrganization(ctx context.Context, organizationID uuid.UUID) ([]entity.Employee, error) {
+	employees, err := s.employeeRepo.GetByOrganization(ctx, organizationID)
+	if err != nil {
+		return nil, NewTypedError("", ErrorTypeInternal, err)
+	}
+
+	return employees, nil
+}

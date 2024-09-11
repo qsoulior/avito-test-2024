@@ -6,6 +6,7 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/entity"
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/pkg/postgres"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type employeePG struct {
@@ -39,6 +40,19 @@ func (r *employeePG) GetByUsername(ctx context.Context, username string) (*entit
 	}
 
 	return collectExactlyOneRow[entity.Employee](rows)
+}
+
+func (r *employeePG) GetByOrganization(ctx context.Context, organizationID uuid.UUID) ([]entity.Employee, error) {
+	const query = `SELECT (id, username, first_name, last_name, created_at, updated_at)
+		 FROM employee JOIN (SELECT (user_id) FROM organization_responsible WHERE organization_id = $1) AS r 
+		 ON employee.id = r.user_id`
+
+	rows, err := r.Pool.Query(ctx, query, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Employee])
 }
 
 func (r *employeePG) HasOrganization(ctx context.Context, userID uuid.UUID, organizationID uuid.UUID) error {

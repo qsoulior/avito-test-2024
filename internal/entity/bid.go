@@ -19,8 +19,8 @@ func (s BidStatus) Validate() error {
 }
 
 func (s BidStatus) ValidateDesicion() error {
-	if !slices.Contains(BidDecisions, s) {
-		return fmt.Errorf("bid decision must be one of: %v", BidDecisions)
+	if !slices.Contains(BidDecisionTypes, s) {
+		return fmt.Errorf("bid decision must be one of: %v", BidDecisionTypes)
 	}
 	return nil
 }
@@ -34,8 +34,8 @@ const (
 )
 
 var (
-	BidStatuses  = []BidStatus{BidCreated, BidPublished, BidCanceled, BidApproved, BidRejected}
-	BidDecisions = []BidStatus{BidApproved, BidRejected}
+	BidStatuses      = []BidStatus{BidCreated, BidPublished, BidCanceled, BidApproved, BidRejected}
+	BidDecisionTypes = []BidStatus{BidApproved, BidRejected}
 )
 
 // BidAuthorType
@@ -125,4 +125,14 @@ func (r BidReview) Validate() error {
 		return ErrBidReviewDescription
 	}
 	return nil
+}
+
+// BidDecision
+type BidDecision struct {
+	ID             uuid.UUID
+	BidID          uuid.UUID
+	Type           BidStatus
+	OrganizationID uuid.UUID
+	CreatorID      uuid.UUID
+	CreatedAt      time.Time
 }

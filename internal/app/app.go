@@ -29,7 +29,7 @@ func Run() int {
 	}
 
 	// database connection
-	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{"organization_type", "tender_service_type", "tender_status", "bid_status", "bid_author_type"}))
+	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{"organization_type", "tender_service_type", "tender_status", "bid_status", "bid_author_type", "bid_decision_type"}))
 	if err != nil {
 		logger.Error("failed to establish db conn", "err", err)
 		return 1
@@ -47,13 +47,14 @@ func Run() int {
 	employeeRepo := repo.NewEmployeePG(pg)
 	tenderRepo := repo.NewTenderPG(pg)
 	bidRepo := repo.NewBidPG(pg)
+	decisionRepo := repo.NewBidDecisionPG(pg)
 	reviewRepo := repo.NewBidReviewPG(pg)
 	logger.Info("repositories initialized")
 
 	// services initialization
 	employeeService := service.NewEmployeeV1(employeeRepo)
 	tenderService := service.NewTenderV1(tenderRepo, employeeService)
-	bidService := service.NewBidV1(bidRepo, tenderService, employeeService)
+	bidService := service.NewBidV1(bidRepo, decisionRepo, tenderService, employeeService)
 	reviewService := service.NewBidReviewV1(reviewRepo, bidService, tenderService, employeeService)
 	logger.Info("services initialized")
 

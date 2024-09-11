@@ -15,4 +15,5 @@ var (
 type Employee interface {
 	GetUser(ctx context.Context, username string) (*entity.Employee, error)
 	GetEmployee(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error)
+	GetByOrganization(ctx context.Context, organizationID uuid.UUID) ([]entity.Employee, error)
 }

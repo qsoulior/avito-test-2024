@@ -23,3 +23,8 @@ type BidReview interface {
 	Create(ctx context.Context, review entity.BidReview) (*entity.BidReview, error)
 	GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.BidReview, error)
 }
+
+type BidDecision interface {
+	Create(ctx context.Context, decision entity.BidDecision) (*entity.BidDecision, error)
+	GetByBidID(ctx context.Context, bidID uuid.UUID, organizationID uuid.UUID, decisionType *entity.BidStatus) ([]entity.BidDecision, error)
+}

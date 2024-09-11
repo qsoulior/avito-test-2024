@@ -12,15 +12,16 @@ import (
 // bidV1
 type bidV1 struct {
 	bidRepo         repo.Bid
+	decisionRepo    repo.BidDecision
 	tenderService   Tender
 	employeeService Employee
 }
 
-func NewBidV1(bidRepo repo.Bid, tenderService Tender, employeeService Employee) Bid {
+func NewBidV1(bidRepo repo.Bid, decisionRepo repo.BidDecision, tenderService Tender, employeeService Employee) Bid {
 	if bidRepo == nil || tenderService == nil || employeeService == nil {
 		return nil
 	}
-	return &bidV1{bidRepo, tenderService, employeeService}
+	return &bidV1{bidRepo, decisionRepo, tenderService, employeeService}
 }
 
 // GetByID
@@ -62,7 +63,7 @@ func (s *bidV1) Create(ctx context.Context, username string, bid entity.Bid) (*e
 		return nil, err
 	}
 	if status == nil || *status != entity.TenderPublished {
-		return nil, NewTypedError("tender is not published", ErrorTypeInvalid, nil)
+		return nil, ErrTenderNotPublished
 	}
 
 	// Set bid employee or private user.
@@ -261,9 +262,9 @@ func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, da
 }
 
 // SubmitDecision
-func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.UUID, decision entity.BidStatus) (*entity.Bid, error) {
-	// Validate bid decision.
-	if err := decision.ValidateDesicion(); err != nil {
+func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.UUID, decisionType entity.BidStatus) (*entity.Bid, error) {
+	// Validate bid decision type.
+	if err := decisionType.ValidateDesicion(); err != nil {
 		return nil, NewTypedError("bid decision is invalid", ErrorTypeInvalid, err)
 	}
 
@@ -279,14 +280,56 @@ func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.
 		return nil, err
 	}
 
+	// Verify tender status.
+	if tender.Status != entity.TenderPublished {
+		return nil, ErrTenderNotPublished
+	}
+
 	// Verify employee associated with organization.
-	_, err = s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
+	employee, err := s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
 
+	if decisionType != entity.BidRejected {
+		// Get employees by organization.
+		employees, err := s.employeeService.GetByOrganization(ctx, tender.OrganizationID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create bid decision.
+		_, err = s.decisionRepo.Create(ctx, entity.BidDecision{
+			BidID:          bid.ID,
+			Type:           decisionType,
+			OrganizationID: tender.OrganizationID,
+			CreatorID:      employee.ID,
+		})
+		if err != nil {
+			return nil, NewTypedError("", ErrorTypeInternal, err)
+		}
+
+		// Get bid decisions.
+		decisions, err := s.decisionRepo.GetByBidID(ctx, bid.ID, tender.OrganizationID, &decisionType)
+		if err != nil {
+			return nil, NewTypedError("", ErrorTypeInternal, err)
+		}
+
+		// If number of decisions is less than quorum,
+		// then do not update status.
+		if len(decisions) < min(3, len(employees)) {
+			return bid, nil
+		}
+	}
+
 	// Update bid status.
-	bid, err = s.bidRepo.UpdateStatus(ctx, bid.ID, decision)
+	bid, err = s.bidRepo.UpdateStatus(ctx, bid.ID, decisionType)
+	if err != nil {
+		return nil, NewTypedError("", ErrorTypeInternal, err)
+	}
+
+	// Update tender status.
+	_, err = s.tenderService.UpdateStatus(ctx, username, tender.ID, entity.TenderClosed)
 	if err != nil {
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}

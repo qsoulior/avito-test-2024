@@ -225,3 +225,40 @@ func (r *bidReviewPG) GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID
 
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.BidReview])
 }
+
+// bidDecisionPG
+type bidDecisionPG struct {
+	*postgres.Postgres
+}
+
+func NewBidDecisionPG(pg *postgres.Postgres) BidDecision {
+	if pg == nil {
+		return nil
+	}
+	return &bidDecisionPG{pg}
+}
+
+func (r *bidDecisionPG) Create(ctx context.Context, decision entity.BidDecision) (*entity.BidDecision, error) {
+	const query = `INSERT INTO bid_decision (bid_id, type, organization_id, creator_id) VALUES ($1, $2, $3, $4) RETURNING *`
+
+	rows, err := r.Pool.Query(ctx, query, decision.BidID, decision.Type, decision.OrganizationID, decision.CreatorID)
+	if err != nil {
+		return nil, err
+	}
+
+	return collectExactlyOneRow[entity.BidDecision](rows)
+}
+
+func (r *bidDecisionPG) GetByBidID(ctx context.Context, bidID uuid.UUID, organizationID uuid.UUID, decisionType *entity.BidStatus) ([]entity.BidDecision, error) {
+
+	const query = `SELECT DISTINCT ON (creator_id) * 
+		FROM bid_decision WHERE bid_id = $1 AND organization_id = $2 AND ($3::bid_decision_type IS NULL OR type = $3)
+		ORDER BY creator_id, created_at DESC`
+
+	rows, err := r.Pool.Query(ctx, query, bidID, organizationID, decisionType)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.BidDecision])
+}
