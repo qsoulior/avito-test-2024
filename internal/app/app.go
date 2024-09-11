@@ -41,7 +41,9 @@ func Run() int {
 	logger.Info("db conn established", "uri", cfg.Postgres.Conn)
 
 	// run migrations
-	Migrate(cfg, logger)
+	if code := Migrate(cfg, logger); code != 0 {
+		return code
+	}
 
 	// repositories initialization
 	employeeRepo := repo.NewEmployeePG(pg)

@@ -10,10 +10,10 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func Migrate(cfg *Config, logger *slog.Logger) {
+func Migrate(cfg *Config, logger *slog.Logger) int {
 	if cfg.Postgres.Migrations == "" {
 		logger.Warn("migrations path not found")
-		return
+		return 0
 	}
 
 	m, err := migrate.New(
@@ -22,7 +22,7 @@ func Migrate(cfg *Config, logger *slog.Logger) {
 
 	if err != nil {
 		logger.Error("failed to initialize migrations", "err", err)
-		return
+		return 1
 	}
 
 	defer m.Close()
@@ -30,12 +30,13 @@ func Migrate(cfg *Config, logger *slog.Logger) {
 	if err := m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			logger.Info("migrations have no changes")
-			return
+			return 0
 		}
 
 		logger.Error("failed to apply migrations", "err", err)
-		return
+		return 1
 	}
 
 	logger.Info("migrations applied")
+	return 0
 }
