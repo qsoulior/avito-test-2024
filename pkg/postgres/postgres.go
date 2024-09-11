@@ -23,7 +23,9 @@ func New(ctx context.Context, uri string, opts ...Option) (*Postgres, error) {
 		return nil, err
 	}
 
-	cfg.MaxConns = pg.maxConns
+	if pg.maxConns >= 1 {
+		cfg.MaxConns = pg.maxConns
+	}
 
 	pg.Pool, err = pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
