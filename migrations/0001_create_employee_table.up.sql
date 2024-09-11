@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS employee (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) UNIQUE NOT NULL,
     first_name VARCHAR(50),
     last_name VARCHAR(50),

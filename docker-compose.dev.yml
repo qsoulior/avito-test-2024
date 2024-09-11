@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 3000:8080
+    environment:
+      SERVER_ADDRESS: 0.0.0.0:8080
+      POSTGRES_CONN: postgres://devuser:devpassword@db:5432/devdb
+
+  db:
+    image: postgres:16.4-alpine3.20
+    restart: unless-stopped
+    ports:
+      - 6432:5432
+    environment:
+      POSTGRES_DB: devdb
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpassword
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 30s
+      start_period: 10s
+      timeout: 10s
+      retries: 5
