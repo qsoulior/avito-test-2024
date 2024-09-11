@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -154,7 +155,7 @@ func (h TenderGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 	tenderID, err := uuid.Parse(r.PathValue("tenderId"))
 	if err != nil {
-		WriteReason(w, http.StatusBadRequest, "tenderId is not UUID")
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("tenderId: %s", err))
 		return
 	}
 
@@ -182,7 +183,7 @@ func (h TenderUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	status := entity.TenderStatus(query.Get("status"))
 	tenderID, err := uuid.Parse(r.PathValue("tenderId"))
 	if err != nil {
-		WriteReason(w, http.StatusBadRequest, "tenderId is not UUID")
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("tenderId: %s", err))
 		return
 	}
 
@@ -210,7 +211,7 @@ func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 	tenderID, err := uuid.Parse(r.PathValue("tenderId"))
 	if err != nil {
-		WriteReason(w, http.StatusBadRequest, "tenderId is not UUID")
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("tenderId: %s", err))
 		return
 	}
 
@@ -247,7 +248,7 @@ func (h TenderRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	version, _ := strconv.Atoi(r.PathValue("version"))
 	tenderID, err := uuid.Parse(r.PathValue("tenderId"))
 	if err != nil {
-		WriteReason(w, http.StatusBadRequest, "tenderId is not UUID")
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("tenderId: %s", err))
 		return
 	}
 
