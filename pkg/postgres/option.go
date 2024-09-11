@@ -7,3 +7,9 @@ func MaxConns(conns int32) Option {
 		c.maxConns = conns
 	}
 }
+
+func DataTypes(dataTypes []string) Option {
+	return func(c *Postgres) {
+		c.dataTypes = dataTypes
+	}
+}

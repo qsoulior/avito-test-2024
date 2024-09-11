@@ -29,7 +29,7 @@ func Run() int {
 	}
 
 	// database connection
-	pg, err := postgres.New(ctx, cfg.Postgres.Conn)
+	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{"organization_type", "tender_service_type", "tender_status", "bid_status", "bid_author_type"}))
 	if err != nil {
 		logger.Error("failed to establish db conn", "err", err)
 		return 1

@@ -85,7 +85,6 @@ func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Te
 	}
 
 	// Set tender initial values.
-	tender.Status = entity.TenderCreated
 	tender.Version = 1
 	tender.CreatorID = employee.ID
 

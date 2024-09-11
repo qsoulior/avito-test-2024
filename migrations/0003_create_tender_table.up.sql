@@ -1,5 +1,5 @@
-CREATE TYPE IF NOT EXISTS tender_service_type AS ENUM ('Construction', 'Delivery', 'Manufacture');
-CREATE TYPE IF NOT EXISTS tender_status AS ENUM ('Created', 'Published', 'Closed');
+CREATE TYPE tender_service_type AS ENUM ('Construction', 'Delivery', 'Manufacture');
+CREATE TYPE tender_status AS ENUM ('Created', 'Published', 'Closed');
 CREATE TABLE IF NOT EXISTS tender (
     id UUID DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,

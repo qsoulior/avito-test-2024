@@ -43,10 +43,12 @@ func (r *bidPG) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 }
 
 func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
-	const query = `SELECT DISTINCT ON (id) * 
+	const query = `SELECT * FROM
+		(SELECT DISTINCT ON (id) * 
 		FROM bid WHERE creator_id = $1 
-		ORDER_BY version DESC, name ASC
-		LIMIT $2 OFFSET $3`
+		ORDER BY id, version DESC
+		LIMIT $2 OFFSET $3)
+		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
 	if err != nil {
@@ -57,10 +59,12 @@ func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit i
 }
 
 func (r *bidPG) GetByTenderID(ctx context.Context, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
-	const query = `SELECT DISTINCT ON (id) * 
+	const query = `SELECT * FROM
+		(SELECT DISTINCT ON (id) * 
 		FROM bid WHERE tender_id = $1 
-		ORDER_BY version DESC, name ASC
-		LIMIT $2 OFFSET $3`
+		ORDER BY id, version DESC
+		LIMIT $2 OFFSET $3)
+		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, tenderID, limit, offset)
 	if err != nil {

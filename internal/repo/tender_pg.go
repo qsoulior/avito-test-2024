@@ -43,10 +43,13 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 }
 
 func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
-	const query = `SELECT DISTINCT ON (id) * 
-		FROM tender WHERE ($1 IS NULL OR service_type = ANY($1)) AND status = 'PUBLISHED' 
-		ORDER_BY version DESC, name ASC 
-		LIMIT $2 OFFSET $3`
+	const query = `SELECT * FROM
+		(SELECT DISTINCT ON (id) * 
+		FROM tender 
+		WHERE ($1::tender_service_type[] IS NULL OR service_type = ANY($1)) AND status = 'Published' 
+		ORDER BY id, version DESC
+		LIMIT $2 OFFSET $3)
+		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, serviceTypes, limit, offset)
 	if err != nil {
@@ -57,10 +60,12 @@ func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 }
 
 func (r *tenderPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Tender, error) {
-	const query = `SELECT DISTINCT ON (id) * 
+	const query = `SELECT * FROM
+		(SELECT DISTINCT ON (id) * 
 		FROM tender WHERE creator_id = $1 
-		ORDER_BY version DESC, name ASC 
-		LIMIT $2 OFFSET $3`
+		ORDER BY id, version DESC 
+		LIMIT $2 OFFSET $3)
+		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
 	if err != nil {

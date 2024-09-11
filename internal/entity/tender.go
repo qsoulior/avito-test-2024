@@ -66,7 +66,11 @@ func (t Tender) Validate() error {
 		return ErrTenderDescription
 	}
 
-	return t.ServiceType.Validate()
+	if err := t.ServiceType.Validate(); err != nil {
+		return err
+	}
+
+	return t.Status.Validate()
 }
 
 const (

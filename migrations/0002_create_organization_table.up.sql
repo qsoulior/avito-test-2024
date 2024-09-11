@@ -1,4 +1,4 @@
-CREATE TYPE IF NOT EXISTS organization_type AS ENUM ('IE', 'LLC', 'JSC');
+CREATE TYPE organization_type AS ENUM ('IE', 'LLC', 'JSC');
 CREATE TABLE IF NOT EXISTS organization (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
