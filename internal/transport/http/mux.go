@@ -8,8 +8,8 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/transport/http/handler"
 )
 
-func NewMux(tenderService service.Tender, bidService service.Bid, logger *slog.Logger) http.Handler {
-	if logger == nil {
+func NewMux(tenderService service.Tender, bidService service.Bid, reviewService service.BidReview, logger *slog.Logger) http.Handler {
+	if tenderService == nil || bidService == nil || reviewService == nil || logger == nil {
 		return nil
 	}
 
@@ -32,6 +32,9 @@ func NewMux(tenderService service.Tender, bidService service.Bid, logger *slog.L
 	router.Handle("PATCH /api/bids/{bidId}/edit", handler.BidUpdate{Service: bidService})
 	router.Handle("PUT /api/bids/{bidId}/submit_decision", handler.BidSubmitDecision{Service: bidService})
 	router.Handle("PUT /api/bids/{bidId}/rollback/{version}", handler.BidRollback{Service: bidService})
+
+	router.Handle("PUT /bids/{bidId}/feedback", handler.BidReviewCreate{Service: reviewService})
+	router.Handle("GET /bids/{tenderId}/reviews", handler.BidReviewGetByBidCreator{Service: reviewService})
 
 	var mux http.Handler = router
 	middlewares := []Middleware{RecovererMiddleware(logger), LoggerMiddleware(logger)}

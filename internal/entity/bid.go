@@ -81,13 +81,15 @@ func (b Bid) Validate() error {
 }
 
 const (
-	BidNameLength        = 100
-	BidDescriptionLength = 500
+	BidNameLength              = 100
+	BidDescriptionLength       = 500
+	BidReviewDescriptionLength = 1000
 )
 
 var (
-	ErrBidName        = fmt.Errorf("bid name is too long (max %d)", BidNameLength)
-	ErrBidDescription = fmt.Errorf("bid description is too long (max %d)", BidDescriptionLength)
+	ErrBidName              = fmt.Errorf("bid name is too long (max %d)", BidNameLength)
+	ErrBidDescription       = fmt.Errorf("bid description is too long (max %d)", BidDescriptionLength)
+	ErrBidReviewDescription = fmt.Errorf("bid review description is too long (max %d)", BidReviewDescriptionLength)
 )
 
 // BidData
@@ -105,5 +107,22 @@ func (d BidData) Validate() error {
 		return ErrBidDescription
 	}
 
+	return nil
+}
+
+// BidReview
+type BidReview struct {
+	ID             uuid.UUID
+	Description    string
+	BidID          uuid.UUID
+	OrganizationID uuid.UUID
+	CreatorID      uuid.UUID
+	CreatedAt      time.Time
+}
+
+func (r BidReview) Validate() error {
+	if len(r.Description) > BidReviewDescriptionLength {
+		return ErrBidReviewDescription
+	}
 	return nil
 }

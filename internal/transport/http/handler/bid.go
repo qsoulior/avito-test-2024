@@ -303,3 +303,86 @@ func (h BidRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp.FromBid(bid)
 	WriteValue(w, http.StatusOK, resp)
 }
+
+type BidReviewResp struct {
+	ID          uuid.UUID `json:"id"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+func (r *BidReviewResp) FromBidReview(review *entity.BidReview) {
+	r.ID = review.ID
+	r.Description = review.Description
+	r.CreatedAt = review.CreatedAt
+}
+
+type BidReviewsResp []BidReviewResp
+
+func (r *BidReviewsResp) FromBidReviews(reviews []entity.BidReview) {
+	*r = make([]BidReviewResp, len(reviews))
+	for i, bid := range reviews {
+		(*r)[i].FromBidReview(&bid)
+	}
+}
+
+// BidReviewCreate
+// PUT /bids/{bidId}/feedback
+type BidReviewCreate struct {
+	Service service.BidReview
+}
+
+func (h BidReviewCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Parse request query and path.
+	query := r.URL.Query()
+	description := query.Get("bidFeedback")
+	username := query.Get("username")
+	bidID, err := uuid.Parse(r.PathValue("bidId"))
+	if err != nil {
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("bidId: %s", err))
+		return
+	}
+
+	// Execute service method.
+	bid, err := h.Service.Create(r.Context(), username, bidID, description)
+	if err != nil {
+		HandleServiceError(w, err)
+		return
+	}
+
+	// Write response.
+	var resp BidReviewResp
+	resp.FromBidReview(bid)
+	WriteValue(w, http.StatusOK, resp)
+}
+
+// BidReviewGetByBidCreator
+// GET /bids/{tenderId}/reviews
+type BidReviewGetByBidCreator struct {
+	Service service.BidReview
+}
+
+func (h BidReviewGetByBidCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Parse request query and path.
+	query := r.URL.Query()
+	limit, _ := strconv.Atoi(query.Get("limit"))
+	offset, _ := strconv.Atoi(query.Get("offset"))
+	creatorUsername := query.Get("authorUsername")
+	requesterUsername := query.Get("requesterUsername")
+	tenderID, err := uuid.Parse(r.PathValue("tenderId"))
+	if err != nil {
+		WriteReason(w, http.StatusBadRequest, fmt.Sprintf("tenderId: %s", err))
+		return
+	}
+
+	// Execute service method.
+	bid, err := h.Service.GetByBidCreator(r.Context(), requesterUsername, creatorUsername, tenderID, limit, offset)
+	if err != nil {
+		HandleServiceError(w, err)
+		return
+	}
+
+	// Write response.
+	var resp BidReviewsResp
+	resp.FromBidReviews(bid)
+	WriteValue(w, http.StatusOK, resp)
+}

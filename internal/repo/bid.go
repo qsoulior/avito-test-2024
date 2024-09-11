@@ -8,6 +8,8 @@ import (
 )
 
 type Bid interface {
+	HasByCreatorID(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error
+
 	Create(ctx context.Context, bid entity.Bid) (*entity.Bid, error)
 	GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, error)
 	GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Bid, error)
@@ -15,4 +17,9 @@ type Bid interface {
 	Update(ctx context.Context, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error)
 	UpdateStatus(ctx context.Context, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error)
 	Rollback(ctx context.Context, bidID uuid.UUID, version int) (*entity.Bid, error)
+}
+
+type BidReview interface {
+	Create(ctx context.Context, review entity.BidReview) (*entity.BidReview, error)
+	GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.BidReview, error)
 }

@@ -26,6 +26,8 @@ var (
 
 type Bid interface {
 	GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, error)
+	HasByCreatorAndTender(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error
+
 	Create(ctx context.Context, username string, bid entity.Bid) (*entity.Bid, error)
 	GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Bid, error)
 	GetByTenderID(ctx context.Context, username string, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error)
@@ -34,4 +36,22 @@ type Bid interface {
 	Update(ctx context.Context, username string, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error)
 	SubmitDecision(ctx context.Context, username string, bidID uuid.UUID, decision entity.BidStatus) (*entity.Bid, error)
 	Rollback(ctx context.Context, username string, bidID uuid.UUID, version int) (*entity.Bid, error)
+}
+
+const (
+	BidReviewLimitMax     = 100
+	BidReviewLimitDefault = 5
+)
+
+var (
+	ErrBidReviewLimit = NewTypedError(
+		fmt.Sprintf("bid review limit must be > 0 and <= %d", BidReviewLimitMax), ErrorTypeInvalid, nil,
+	)
+	ErrBidReviewOffset    = NewTypedError("bid review offset must be >= 0", ErrorTypeInvalid, nil)
+	ErrBidCreatorNotExist = NewTypedError("bid creator does not exist", ErrorTypeNotExist, nil)
+)
+
+type BidReview interface {
+	Create(ctx context.Context, username string, bidID uuid.UUID, description string) (*entity.BidReview, error)
+	GetByBidCreator(ctx context.Context, requesterUsername string, creatorUsername string, tenderID uuid.UUID, limit int, offset int) ([]entity.BidReview, error)
 }

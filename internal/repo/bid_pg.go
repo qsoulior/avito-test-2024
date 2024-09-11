@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// bidPG
 type bidPG struct {
 	*postgres.Postgres
 }
@@ -18,6 +19,25 @@ func NewBidPG(pg *postgres.Postgres) Bid {
 		return nil
 	}
 	return &bidPG{pg}
+}
+
+func (r *bidPG) HasByCreatorID(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error {
+	const query = `SELECT * FROM bid WHERE creator_id = $1 AND tender_id $2`
+
+	rows, err := r.Pool.Query(ctx, query, creatorID, tenderID)
+	if err != nil {
+		return err
+	}
+
+	if !rows.Next() {
+		if rows.Err() == nil {
+			return ErrNoRows
+		}
+		return rows.Err()
+	}
+
+	rows.Close()
+	return rows.Err()
 }
 
 func (r *bidPG) Create(ctx context.Context, bid entity.Bid) (*entity.Bid, error) {
@@ -104,7 +124,7 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data entity.BidData
 
 	const insertQuery = `INSERT INTO bid (id, name, description, status, tender_id, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
 
-	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
+	rows, err = tx.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +174,7 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT MAX(version) FROM bid WHERE id = $1) + 1) 
 		RETURNING *`
 
-	rows, err = r.Pool.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
+	rows, err = tx.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -165,4 +185,41 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 	}
 
 	return collectExactlyOneRow[entity.Bid](rows)
+}
+
+// bidReviewPG
+type bidReviewPG struct {
+	*postgres.Postgres
+}
+
+func NewBidReviewPG(pg *postgres.Postgres) BidReview {
+	if pg == nil {
+		return nil
+	}
+	return &bidReviewPG{pg}
+}
+
+func (r *bidReviewPG) Create(ctx context.Context, review entity.BidReview) (*entity.BidReview, error) {
+	const query = `INSERT INTO bid_review (description, bid_id, organization_id, creator_id) VALUES ($1, $2, $3, $4) RETURNING *`
+
+	rows, err := r.Pool.Query(ctx, query, review.Description, review.BidID, review.OrganizationID, review.CreatorID)
+	if err != nil {
+		return nil, err
+	}
+
+	return collectExactlyOneRow[entity.BidReview](rows)
+}
+
+func (r *bidReviewPG) GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.BidReview, error) {
+	const query = `SELECT (id, description, bid_id, organization_id, creator_id, created_at) 
+		FROM (SELECT (id) FROM bid WHERE bid.creator_id = $1) as bid
+		JOIN bid_review ON bid.id = bid_review.bid_id
+		LIMIT $2 OFFSET $3`
+
+	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.BidReview])
 }

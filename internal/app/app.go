@@ -44,16 +44,18 @@ func Run() int {
 	employeeRepo := repo.NewEmployeePG(pg)
 	tenderRepo := repo.NewTenderPG(pg)
 	bidRepo := repo.NewBidPG(pg)
+	reviewRepo := repo.NewBidReviewPG(pg)
 	logger.Info("repositories initialized")
 
 	// services initialization
 	employeeService := service.NewEmployeeV1(employeeRepo)
 	tenderService := service.NewTenderV1(tenderRepo, employeeService)
 	bidService := service.NewBidV1(bidRepo, tenderService, employeeService)
+	reviewService := service.NewBidReviewV1(reviewRepo, bidService, tenderService, employeeService)
 	logger.Info("services initialized")
 
 	// http server start
-	mux := http.NewMux(tenderService, bidService, logger)
+	mux := http.NewMux(tenderService, bidService, reviewService, logger)
 	server := httpserver.New(mux, httpserver.Addr(cfg.Server.Addr))
 	server.Start(ctx)
 	logger.Info("http server started", "addr", cfg.Server.Addr)

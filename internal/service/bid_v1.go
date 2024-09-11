@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// bidV1
 type bidV1 struct {
 	bidRepo         repo.Bid
 	tenderService   Tender
@@ -32,6 +33,19 @@ func (s *bidV1) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 		return nil, NewTypedError("", ErrorTypeInternal, err)
 	}
 	return bid, nil
+}
+
+// HasByCreatorAndTender
+func (s *bidV1) HasByCreatorAndTender(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error {
+	err := s.bidRepo.HasByCreatorID(ctx, creatorID, tenderID)
+	if err != nil {
+		if errors.Is(err, repo.ErrNoRows) {
+			return NewTypedError("creator does not have bid for tender", ErrorTypeNotExist, nil)
+		}
+		return NewTypedError("", ErrorTypeInternal, err)
+	}
+
+	return nil
 }
 
 // Create
@@ -319,4 +333,121 @@ func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, 
 	}
 
 	return bid, nil
+}
+
+// bidReviewV1
+type bidReviewV1 struct {
+	reviewRepo      repo.BidReview
+	bidService      Bid
+	tenderService   Tender
+	employeeService Employee
+}
+
+func NewBidReviewV1(reviewRepo repo.BidReview, bidService Bid, tenderService Tender, employeeService Employee) BidReview {
+	if reviewRepo == nil || bidService == nil || tenderService == nil || employeeService == nil {
+		return nil
+	}
+	return &bidReviewV1{reviewRepo, bidService, tenderService, employeeService}
+}
+
+// Create
+func (s *bidReviewV1) Create(ctx context.Context, username string, bidID uuid.UUID, description string) (*entity.BidReview, error) {
+	// Get bid by id.
+	bid, err := s.bidService.GetByID(ctx, bidID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get tender by id.
+	tender, err := s.tenderService.GetByID(ctx, bid.TenderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify employee associated with organization.
+	employee, err := s.employeeService.GetEmployee(ctx, username, tender.OrganizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set review.
+	review := entity.BidReview{
+		Description:    description,
+		BidID:          bidID,
+		OrganizationID: tender.OrganizationID,
+		CreatorID:      employee.ID,
+	}
+
+	if err := review.Validate(); err != nil {
+		return nil, NewTypedError("bid review data is invalid", ErrorTypeInvalid, err)
+	}
+
+	// Create review.
+	createdReview, err := s.reviewRepo.Create(ctx, review)
+	if err != nil {
+		return nil, NewTypedError("", ErrorTypeInternal, err)
+	}
+
+	return createdReview, nil
+}
+
+func (s *bidReviewV1) getLimit(limit int) (int, error) {
+	if limit < 0 || limit > BidLimitMax {
+		return 0, ErrBidReviewLimit
+	}
+
+	if limit == 0 {
+		return BidLimitDefault, nil
+	}
+
+	return limit, nil
+}
+
+// GetByBidCreator
+func (s *bidReviewV1) GetByBidCreator(ctx context.Context, requesterUsername string, creatorUsername string, tenderID uuid.UUID, limit int, offset int) ([]entity.BidReview, error) {
+	// Validate limit.
+	limit, err := s.getLimit(limit)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate offset.
+	if offset < 0 {
+		return nil, ErrBidReviewOffset
+	}
+
+	// Get tender by id.
+	tender, err := s.tenderService.GetByID(ctx, tenderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify employee associated with organization.
+	_, err = s.employeeService.GetEmployee(ctx, requesterUsername, tender.OrganizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if creator exists.
+	creator, err := s.employeeService.GetUser(ctx, creatorUsername)
+	if err != nil {
+		if errors.Is(err, ErrEmployeeUnauthorized) {
+			return nil, NewTypedError("creator not found", ErrorTypeNotExist, nil)
+		}
+		return nil, err
+	}
+
+	// Check if creator have bid for tender.
+	err = s.bidService.HasByCreatorAndTender(ctx, creator.ID, tender.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get bid reviews by creator.
+	reviews, err := s.reviewRepo.GetByBidCreatorID(ctx, creator.ID, limit, offset)
+	if err != nil {
+		return nil, NewTypedError("", ErrorTypeInternal, err)
+	}
+
+	return reviews, nil
 }
