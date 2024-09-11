@@ -46,7 +46,7 @@ func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 	const query = `SELECT * FROM
 		(SELECT DISTINCT ON (id) * 
 		FROM tender 
-		WHERE ($1::tender_service_type[] IS NULL OR service_type = ANY($1)) AND status = 'Published' 
+		WHERE (array_length($1::tender_service_type[], 1) IS NULL OR service_type = ANY($1)) AND status = 'Published' 
 		ORDER BY id, version DESC
 		LIMIT $2 OFFSET $3)
 		ORDER BY name ASC`
