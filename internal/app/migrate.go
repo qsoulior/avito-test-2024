@@ -17,7 +17,7 @@ func Migrate(cfg *Config, logger *slog.Logger) {
 	}
 
 	m, err := migrate.New(
-		"file://migrations",
+		fmt.Sprintf("file://%s", cfg.Postgres.Migrations),
 		fmt.Sprintf("%s?sslmode=disable", cfg.Postgres.Conn))
 
 	if err != nil {
