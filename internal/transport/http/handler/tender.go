@@ -63,7 +63,7 @@ func (r *TendersResp) FromTenders(tenders []entity.Tender) {
 // TenderGetByServiceType
 // GET /tenders
 type TenderGetByServiceType struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderGetByServiceType) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +77,7 @@ func (h TenderGetByServiceType) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	// Execute service method.
-	tenders, err := h.service.GetByServiceType(r.Context(), serviceTypes, limit, offset)
+	tenders, err := h.Service.GetByServiceType(r.Context(), serviceTypes, limit, offset)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -92,7 +92,7 @@ func (h TenderGetByServiceType) ServeHTTP(w http.ResponseWriter, r *http.Request
 // TenderCreate
 // POST /tenders/new
 type TenderCreate struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func (h TenderCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	tender, err := h.service.Create(r.Context(), req.CreatorUsername, req.ToTender())
+	tender, err := h.Service.Create(r.Context(), req.CreatorUsername, req.ToTender())
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -121,7 +121,7 @@ func (h TenderCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // TenderGetByCreator
 // GET /tenders/my
 type TenderGetByCreator struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +132,7 @@ func (h TenderGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	username := query.Get("username")
 
 	// Execute service method.
-	tenders, err := h.service.GetByCreatorUsername(r.Context(), username, limit, offset)
+	tenders, err := h.Service.GetByCreatorUsername(r.Context(), username, limit, offset)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -147,7 +147,7 @@ func (h TenderGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // TenderGetStatus
 // GET /tenders/{tenderId}/status
 type TenderGetStatus struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -160,7 +160,7 @@ func (h TenderGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	status, err := h.service.GetStatus(r.Context(), username, tenderID)
+	status, err := h.Service.GetStatus(r.Context(), username, tenderID)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -173,7 +173,7 @@ func (h TenderGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // TenderUpdateStatus
 // PUT /tenders/{tenderId}/status
 type TenderUpdateStatus struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +188,7 @@ func (h TenderUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	tender, err := h.service.UpdateStatus(r.Context(), username, tenderID, status)
+	tender, err := h.Service.UpdateStatus(r.Context(), username, tenderID, status)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -203,7 +203,7 @@ func (h TenderUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // TenderUpdate
 // PATCH /tenders/{tenderId}/edit
 type TenderUpdate struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +224,7 @@ func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	tender, err := h.service.Update(r.Context(), username, tenderID, data)
+	tender, err := h.Service.Update(r.Context(), username, tenderID, data)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -239,7 +239,7 @@ func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // TenderRollback
 // PUT /tenders/{tenderId}/rollback/{version}
 type TenderRollback struct {
-	service service.Tender
+	Service service.Tender
 }
 
 func (h TenderRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -253,7 +253,7 @@ func (h TenderRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	tender, err := h.service.Rollback(r.Context(), username, tenderID, version)
+	tender, err := h.Service.Rollback(r.Context(), username, tenderID, version)
 	if err != nil {
 		HandleServiceError(w, err)
 		return

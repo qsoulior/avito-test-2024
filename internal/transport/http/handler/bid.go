@@ -70,7 +70,7 @@ func (r *BidsResp) FromBids(bids []entity.Bid) {
 // BidCreate
 // POST /bids/new
 type BidCreate struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +84,7 @@ func (h BidCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bid, err := h.service.Create(r.Context(), req.CreatorUsername, req.ToBid())
+	bid, err := h.Service.Create(r.Context(), req.CreatorUsername, req.ToBid())
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -99,7 +99,7 @@ func (h BidCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidGetByCreator
 // GET /bids/my
 type BidGetByCreator struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +110,7 @@ func (h BidGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	username := query.Get("username")
 
 	// Execute service method.
-	bids, err := h.service.GetByCreatorUsername(r.Context(), username, limit, offset)
+	bids, err := h.Service.GetByCreatorUsername(r.Context(), username, limit, offset)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -125,7 +125,7 @@ func (h BidGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidGetByTender
 // GET /bids/{tenderId}/list
 type BidGetByTender struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidGetByTender) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +141,7 @@ func (h BidGetByTender) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bids, err := h.service.GetByTenderID(r.Context(), username, tenderID, limit, offset)
+	bids, err := h.Service.GetByTenderID(r.Context(), username, tenderID, limit, offset)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -156,7 +156,7 @@ func (h BidGetByTender) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidGetStatus
 // GET /bids/{bidId}/status
 type BidGetStatus struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +169,7 @@ func (h BidGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	status, err := h.service.GetStatus(r.Context(), username, bidID)
+	status, err := h.Service.GetStatus(r.Context(), username, bidID)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -182,7 +182,7 @@ func (h BidGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidUpdateStatus
 // PUT /bids/{bidId}/status
 type BidUpdateStatus struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -197,7 +197,7 @@ func (h BidUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bid, err := h.service.UpdateStatus(r.Context(), username, bidID, status)
+	bid, err := h.Service.UpdateStatus(r.Context(), username, bidID, status)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -212,7 +212,7 @@ func (h BidUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidUpdate
 // PATCH /bids/{bidId}/edit
 type BidUpdate struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -233,7 +233,7 @@ func (h BidUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bid, err := h.service.Update(r.Context(), username, bidID, data)
+	bid, err := h.Service.Update(r.Context(), username, bidID, data)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -248,7 +248,7 @@ func (h BidUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidSubmitDecision
 // PUT /bids/{bidId}/submit_decision
 type BidSubmitDecision struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidSubmitDecision) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +263,7 @@ func (h BidSubmitDecision) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bid, err := h.service.SubmitDecision(r.Context(), username, bidID, decision)
+	bid, err := h.Service.SubmitDecision(r.Context(), username, bidID, decision)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
@@ -278,7 +278,7 @@ func (h BidSubmitDecision) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // BidRollback
 // PUT /bids/{bidId}/rollback/{version}
 type BidRollback struct {
-	service service.Bid
+	Service service.Bid
 }
 
 func (h BidRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -292,7 +292,7 @@ func (h BidRollback) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute service method.
-	bid, err := h.service.Rollback(r.Context(), username, bidID, version)
+	bid, err := h.Service.Rollback(r.Context(), username, bidID, version)
 	if err != nil {
 		HandleServiceError(w, err)
 		return
