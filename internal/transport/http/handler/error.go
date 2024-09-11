@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/service"
 )
@@ -33,9 +34,17 @@ func HandleServiceError(w http.ResponseWriter, err error) {
 	if errors.As(err, &serviceErr) {
 		code, ok := ErrorCodes[serviceErr.Type()]
 		if ok {
-			WriteReason(w, code, serviceErr.Error())
+			var reason strings.Builder
+			reason.WriteString(serviceErr.Error())
+			uerr := serviceErr.Unwrap()
+			if uerr != nil {
+				reason.WriteString(": ")
+				reason.WriteString(uerr.Error())
+			}
+			WriteReason(w, code, reason.String())
 			return
 		}
+		panic(serviceErr.Unwrap())
 	}
 
 	// Panic must be recovered by RecovererMiddleware.

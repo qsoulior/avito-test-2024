@@ -71,9 +71,12 @@ func (h TenderGetByServiceType) ServeHTTP(w http.ResponseWriter, r *http.Request
 	query := r.URL.Query()
 	limit, _ := strconv.Atoi(query.Get("limit"))
 	offset, _ := strconv.Atoi(query.Get("offset"))
-	serviceTypes := make([]entity.TenderServiceType, len(query["service_type"]))
-	for i, serviceType := range query["service_type"] {
-		serviceTypes[i] = entity.TenderServiceType(serviceType)
+	var serviceTypes []entity.TenderServiceType
+	if n := len(query["service_type"]); n > 0 {
+		serviceTypes = make([]entity.TenderServiceType, n)
+		for i, serviceType := range query["service_type"] {
+			serviceTypes[i] = entity.TenderServiceType(serviceType)
+		}
 	}
 
 	// Execute service method.
