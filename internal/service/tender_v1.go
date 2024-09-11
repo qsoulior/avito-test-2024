@@ -53,6 +53,11 @@ func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 		return nil, err
 	}
 
+	// Validate offset.
+	if offset < 0 {
+		return nil, ErrTenderOffset
+	}
+
 	// Validate tender service type.
 	for _, serviceType := range serviceTypes {
 		err := serviceType.Validate()
@@ -103,6 +108,11 @@ func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, li
 	limit, err := s.getLimit(limit)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate offset.
+	if offset < 0 {
+		return nil, ErrTenderOffset
 	}
 
 	// Get creator not associated with organization.

@@ -19,6 +19,7 @@ var (
 	ErrTenderLimit           = NewTypedError(
 		fmt.Sprintf("tender limit must be > 0 and <= %d", TenderLimitMax), ErrorTypeInvalid, nil,
 	)
+	ErrTenderOffset  = NewTypedError("tender offset must be >= 0", ErrorTypeInvalid, nil)
 	ErrTenderVersion = NewTypedError("tender version must be greater than 0", ErrorTypeInvalid, nil)
 )
 

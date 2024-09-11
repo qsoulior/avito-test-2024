@@ -43,7 +43,10 @@ func (s *bidV1) Create(ctx context.Context, username string, bid entity.Bid) (*e
 	}
 
 	// Verify tender status.
-	status, _ := s.tenderService.GetStatus(ctx, username, bid.TenderID)
+	status, err := s.tenderService.GetStatus(ctx, username, bid.TenderID)
+	if err != nil {
+		return nil, err
+	}
 	if status == nil || *status != entity.TenderPublished {
 		return nil, NewTypedError("tender is not published", ErrorTypeInvalid, nil)
 	}
@@ -96,6 +99,11 @@ func (s *bidV1) GetByCreatorUsername(ctx context.Context, username string, limit
 		return nil, err
 	}
 
+	// Validate offset.
+	if offset < 0 {
+		return nil, ErrBidOffset
+	}
+
 	// Get creator not associated with organization.
 	employee, err := s.employeeService.GetUser(ctx, username)
 	if err != nil {
@@ -117,6 +125,11 @@ func (s *bidV1) GetByTenderID(ctx context.Context, username string, tenderID uui
 	limit, err := s.getLimit(limit)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate offset.
+	if offset < 0 {
+		return nil, ErrBidOffset
 	}
 
 	// Get tender by id.

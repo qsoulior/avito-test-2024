@@ -19,6 +19,7 @@ var (
 	ErrBidLimit           = NewTypedError(
 		fmt.Sprintf("bid limit must be > 0 and <= %d", BidLimitMax), ErrorTypeInvalid, nil,
 	)
+	ErrBidOffset  = NewTypedError("bid offset must be >= 0", ErrorTypeInvalid, nil)
 	ErrBidVersion = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
 )
 
