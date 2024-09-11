@@ -33,8 +33,8 @@ func NewMux(tenderService service.Tender, bidService service.Bid, reviewService 
 	router.Handle("PUT /api/bids/{bidId}/submit_decision", handler.BidSubmitDecision{Service: bidService})
 	router.Handle("PUT /api/bids/{bidId}/rollback/{version}", handler.BidRollback{Service: bidService})
 
-	router.Handle("PUT /bids/{bidId}/feedback", handler.BidReviewCreate{Service: reviewService})
-	router.Handle("GET /bids/{tenderId}/reviews", handler.BidReviewGetByBidCreator{Service: reviewService})
+	router.Handle("PUT /api/bids/{bidId}/feedback", handler.BidReviewCreate{Service: reviewService})
+	router.Handle("GET /api/bids/{tenderId}/reviews", handler.BidReviewGetByBidCreator{Service: reviewService})
 
 	var mux http.Handler = router
 	middlewares := []Middleware{RecovererMiddleware(logger), LoggerMiddleware(logger)}
