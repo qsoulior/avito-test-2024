@@ -190,9 +190,12 @@ func (s *bidV1) UpdateStatus(ctx context.Context, username string, bidID uuid.UU
 			return nil, err
 		}
 	} else {
-		_, err := s.employeeService.GetUser(ctx, username)
+		user, err := s.employeeService.GetUser(ctx, username)
 		if err != nil {
 			return nil, err
+		}
+		if user.ID != bid.CreatorID {
+			return nil, ErrBidCreator
 		}
 	}
 
@@ -225,9 +228,12 @@ func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, da
 			return nil, err
 		}
 	} else {
-		_, err := s.employeeService.GetUser(ctx, username)
+		user, err := s.employeeService.GetUser(ctx, username)
 		if err != nil {
 			return nil, err
+		}
+		if user.ID != bid.CreatorID {
+			return nil, ErrBidCreator
 		}
 	}
 
@@ -294,9 +300,12 @@ func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, 
 			return nil, err
 		}
 	} else {
-		_, err := s.employeeService.GetUser(ctx, username)
+		user, err := s.employeeService.GetUser(ctx, username)
 		if err != nil {
 			return nil, err
+		}
+		if user.ID != bid.CreatorID {
+			return nil, ErrBidCreator
 		}
 	}
 

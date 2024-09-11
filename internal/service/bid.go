@@ -21,6 +21,7 @@ var (
 	)
 	ErrBidOffset  = NewTypedError("bid offset must be >= 0", ErrorTypeInvalid, nil)
 	ErrBidVersion = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
+	ErrBidCreator = NewTypedError("user is not a creator", ErrorTypeForbidden, nil)
 )
 
 type Bid interface {
