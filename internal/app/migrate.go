@@ -18,7 +18,7 @@ func Migrate(cfg *Config, logger *slog.Logger) int {
 
 	m, err := migrate.New(
 		fmt.Sprintf("file://%s", cfg.Postgres.Migrations),
-		fmt.Sprintf("%s?sslmode=disable", cfg.Postgres.Conn))
+		cfg.Postgres.Conn)
 
 	if err != nil {
 		logger.Error("failed to initialize migrations", "err", err)
