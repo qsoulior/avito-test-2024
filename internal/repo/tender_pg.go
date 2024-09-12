@@ -114,12 +114,17 @@ func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data entity.T
 		return nil, err
 	}
 
+	tender, err = collectExactlyOneRow[entity.Tender](rows)
+	if err != nil {
+		return nil, err
+	}
+
 	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return collectExactlyOneRow[entity.Tender](rows)
+	return tender, nil
 }
 
 func (r *tenderPG) UpdateStatus(ctx context.Context, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
@@ -164,10 +169,15 @@ func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int
 		return nil, err
 	}
 
+	tender, err = collectExactlyOneRow[entity.Tender](rows)
+	if err != nil {
+		return nil, err
+	}
+
 	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return collectExactlyOneRow[entity.Tender](rows)
+	return tender, nil
 }

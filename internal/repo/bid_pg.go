@@ -22,7 +22,7 @@ func NewBidPG(pg *postgres.Postgres) Bid {
 }
 
 func (r *bidPG) HasByCreatorID(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error {
-	const query = `SELECT * FROM bid WHERE creator_id = $1 AND tender_id $2`
+	const query = `SELECT * FROM bid WHERE creator_id = $1 AND tender_id = $2`
 
 	rows, err := r.Pool.Query(ctx, query, creatorID, tenderID)
 	if err != nil {
@@ -81,7 +81,7 @@ func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit i
 func (r *bidPG) GetByTenderID(ctx context.Context, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
 	const query = `SELECT * FROM
 		(SELECT DISTINCT ON (id) * 
-		FROM bid WHERE tender_id = $1 
+		FROM bid WHERE tender_id = $1 AND status IN ('Published','Approved','Rejected') 
 		ORDER BY id, version DESC
 		LIMIT $2 OFFSET $3)
 		ORDER BY name ASC`
@@ -129,12 +129,17 @@ func (r *bidPG) Update(ctx context.Context, bidID uuid.UUID, data entity.BidData
 		return nil, err
 	}
 
+	bid, err = collectExactlyOneRow[entity.Bid](rows)
+	if err != nil {
+		return nil, err
+	}
+
 	err = tx.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return collectExactlyOneRow[entity.Bid](rows)
+	return bid, nil
 }
 
 func (r *bidPG) UpdateStatus(ctx context.Context, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error) {
@@ -174,7 +179,12 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT MAX(version) FROM bid WHERE id = $1) + 1) 
 		RETURNING *`
 
-	rows, err = tx.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID, bid.Version)
+	rows, err = tx.Query(ctx, insertQuery, bid.ID, bid.Name, bid.Description, bid.Status, bid.TenderID, bid.OrganizationID, bid.CreatorID)
+	if err != nil {
+		return nil, err
+	}
+
+	bid, err = collectExactlyOneRow[entity.Bid](rows)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +194,7 @@ func (r *bidPG) Rollback(ctx context.Context, bidID uuid.UUID, version int) (*en
 		return nil, err
 	}
 
-	return collectExactlyOneRow[entity.Bid](rows)
+	return bid, nil
 }
 
 // bidReviewPG
@@ -211,8 +221,8 @@ func (r *bidReviewPG) Create(ctx context.Context, review entity.BidReview) (*ent
 }
 
 func (r *bidReviewPG) GetByBidCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.BidReview, error) {
-	const query = `SELECT (id, description, bid_id, organization_id, creator_id, created_at) FROM 
-		(SELECT DISTINCT ON (id) (id) 
+	const query = `SELECT bid_review.id, description, bid_id, organization_id, creator_id, created_at FROM 
+		(SELECT DISTINCT ON (id) id 
 		FROM bid WHERE creator_id = $1 
 		ORDER BY id, version DESC) as bid
 		JOIN bid_review ON bid.id = bid_review.bid_id

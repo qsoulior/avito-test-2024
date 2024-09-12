@@ -31,7 +31,7 @@ func (s *bidV1) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrBidNotExist
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.GetByID", ErrorTypeInternal, err)
 	}
 	return bid, nil
 }
@@ -43,7 +43,7 @@ func (s *bidV1) HasByCreatorAndTender(ctx context.Context, creatorID uuid.UUID, 
 		if errors.Is(err, repo.ErrNoRows) {
 			return NewTypedError("creator does not have bid for tender", ErrorTypeNotExist, nil)
 		}
-		return NewTypedError("", ErrorTypeInternal, err)
+		return NewTypedError("bidRepo.HasByCreatorID", ErrorTypeInternal, err)
 	}
 
 	return nil
@@ -81,14 +81,13 @@ func (s *bidV1) Create(ctx context.Context, username string, bid entity.Bid) (*e
 		bid.CreatorID = user.ID
 	}
 
-	// Set bid status and version.
-	bid.Status = entity.BidCreated
+	// Set bid version.
 	bid.Version = 1
 
 	// Create bid.
 	createdBid, err := s.bidRepo.Create(ctx, bid)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.Create", ErrorTypeInternal, err)
 	}
 
 	return createdBid, nil
@@ -128,7 +127,7 @@ func (s *bidV1) GetByCreatorUsername(ctx context.Context, username string, limit
 	// Get bids by creator id.
 	bids, err := s.bidRepo.GetByCreatorID(ctx, employee.ID, limit, offset)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.GetByCreatorID", ErrorTypeInternal, err)
 	}
 
 	return bids, nil
@@ -162,7 +161,7 @@ func (s *bidV1) GetByTenderID(ctx context.Context, username string, tenderID uui
 	// Get bids by tender id.
 	bids, err := s.bidRepo.GetByTenderID(ctx, tender.ID, limit, offset)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.GetByTenderID", ErrorTypeInternal, err)
 	}
 
 	return bids, nil
@@ -217,7 +216,7 @@ func (s *bidV1) UpdateStatus(ctx context.Context, username string, bidID uuid.UU
 	// Update bid status.
 	bid, err = s.bidRepo.UpdateStatus(ctx, bid.ID, status)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.UpdateStatus", ErrorTypeInternal, err)
 	}
 
 	return bid, nil
@@ -255,7 +254,7 @@ func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, da
 	// Update bid data.
 	bid, err = s.bidRepo.Update(ctx, bid.ID, data)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.Update", ErrorTypeInternal, err)
 	}
 
 	return bid, nil
@@ -272,6 +271,11 @@ func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.
 	bid, err := s.GetByID(ctx, bidID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Verify bid status.
+	if bid.Status != entity.BidPublished {
+		return nil, ErrBidNotPublished
 	}
 
 	// Get tender by id.
@@ -306,13 +310,13 @@ func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.
 			CreatorID:      employee.ID,
 		})
 		if err != nil {
-			return nil, NewTypedError("", ErrorTypeInternal, err)
+			return nil, NewTypedError("decisionRepo.Create", ErrorTypeInternal, err)
 		}
 
 		// Get bid decisions.
 		decisions, err := s.decisionRepo.GetByBidID(ctx, bid.ID, tender.OrganizationID, &decisionType)
 		if err != nil {
-			return nil, NewTypedError("", ErrorTypeInternal, err)
+			return nil, NewTypedError("decisionRepo.GetByBidID", ErrorTypeInternal, err)
 		}
 
 		// If number of decisions is less than quorum,
@@ -325,13 +329,15 @@ func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.
 	// Update bid status.
 	bid, err = s.bidRepo.UpdateStatus(ctx, bid.ID, decisionType)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.UpdateStatus", ErrorTypeInternal, err)
 	}
 
 	// Update tender status.
-	_, err = s.tenderService.UpdateStatus(ctx, username, tender.ID, entity.TenderClosed)
-	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+	if decisionType == entity.BidApproved {
+		_, err = s.tenderService.UpdateStatus(ctx, username, tender.ID, entity.TenderClosed)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return bid, nil
@@ -372,7 +378,7 @@ func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, 
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrBidVersionNotExist
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("bidRepo.Rollback", ErrorTypeInternal, err)
 	}
 
 	return bid, nil
@@ -428,7 +434,7 @@ func (s *bidReviewV1) Create(ctx context.Context, username string, bidID uuid.UU
 	// Create review.
 	createdReview, err := s.reviewRepo.Create(ctx, review)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("reviewRepo.Create", ErrorTypeInternal, err)
 	}
 
 	return createdReview, nil
@@ -489,7 +495,7 @@ func (s *bidReviewV1) GetByBidCreator(ctx context.Context, requesterUsername str
 	// Get bid reviews by creator.
 	reviews, err := s.reviewRepo.GetByBidCreatorID(ctx, creator.ID, limit, offset)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("reviewRepo.GetByBidCreatorID", ErrorTypeInternal, err)
 	}
 
 	return reviews, nil

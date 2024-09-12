@@ -28,7 +28,7 @@ func (s *tenderV1) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrTenderNotExist
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.GetByID", ErrorTypeInternal, err)
 	}
 	return tender, nil
 }
@@ -69,7 +69,7 @@ func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 	// Get published tenders by service type.
 	tenders, err := s.tenderRepo.GetByServiceType(ctx, serviceTypes, limit, offset)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.GetByServiceType", ErrorTypeInternal, err)
 	}
 
 	return tenders, nil
@@ -96,7 +96,7 @@ func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Te
 	// Create tender.
 	createdTender, err := s.tenderRepo.Create(ctx, tender)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.Create", ErrorTypeInternal, err)
 	}
 
 	return createdTender, nil
@@ -124,7 +124,7 @@ func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, li
 	// Get tenders by creator id.
 	tenders, err := s.tenderRepo.GetByCreatorID(ctx, creator.ID, limit, offset)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.GetByCreatorID", ErrorTypeInternal, err)
 	}
 
 	return tenders, nil
@@ -169,7 +169,7 @@ func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID u
 	// Update tender status.
 	tender, err = s.tenderRepo.UpdateStatus(ctx, tender.ID, status)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.UpdateStatus", ErrorTypeInternal, err)
 	}
 
 	return tender, nil
@@ -197,7 +197,7 @@ func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UU
 	// Update tender data.
 	tender, err = s.tenderRepo.Update(ctx, tender.ID, data)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.Update", ErrorTypeInternal, err)
 	}
 
 	return tender, nil
@@ -228,7 +228,7 @@ func (s *tenderV1) Rollback(ctx context.Context, username string, tenderID uuid.
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrTenderVersionNotExist
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("tenderRepo.Rollback", ErrorTypeInternal, err)
 	}
 
 	return tender, nil

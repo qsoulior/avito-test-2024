@@ -43,8 +43,8 @@ func (r *employeePG) GetByUsername(ctx context.Context, username string) (*entit
 }
 
 func (r *employeePG) GetByOrganization(ctx context.Context, organizationID uuid.UUID) ([]entity.Employee, error) {
-	const query = `SELECT (id, username, first_name, last_name, created_at, updated_at)
-		 FROM employee JOIN (SELECT (user_id) FROM organization_responsible WHERE organization_id = $1) AS r 
+	const query = `SELECT id, username, first_name, last_name, created_at, updated_at
+		 FROM employee JOIN (SELECT user_id FROM organization_responsible WHERE organization_id = $1) AS r 
 		 ON employee.id = r.user_id`
 
 	rows, err := r.Pool.Query(ctx, query, organizationID)

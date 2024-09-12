@@ -26,7 +26,7 @@ func (s *employeeV1) GetUser(ctx context.Context, username string) (*entity.Empl
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrEmployeeUnauthorized
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("employeeRepo.GetByUsername", ErrorTypeInternal, err)
 	}
 	return employee, nil
 }
@@ -42,7 +42,7 @@ func (s *employeeV1) GetEmployee(ctx context.Context, username string, organizat
 		if errors.Is(err, repo.ErrNoRows) {
 			return nil, ErrEmployeeForbidden
 		}
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("employeeRepo.HasOrganization", ErrorTypeInternal, err)
 	}
 
 	return employee, nil
@@ -51,7 +51,7 @@ func (s *employeeV1) GetEmployee(ctx context.Context, username string, organizat
 func (s *employeeV1) GetByOrganization(ctx context.Context, organizationID uuid.UUID) ([]entity.Employee, error) {
 	employees, err := s.employeeRepo.GetByOrganization(ctx, organizationID)
 	if err != nil {
-		return nil, NewTypedError("", ErrorTypeInternal, err)
+		return nil, NewTypedError("employeeRepo.GetByOrganization", ErrorTypeInternal, err)
 	}
 
 	return employees, nil

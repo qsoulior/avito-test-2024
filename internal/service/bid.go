@@ -19,9 +19,10 @@ var (
 	ErrBidLimit           = NewTypedError(
 		fmt.Sprintf("bid limit must be > 0 and <= %d", BidLimitMax), ErrorTypeInvalid, nil,
 	)
-	ErrBidOffset  = NewTypedError("bid offset must be >= 0", ErrorTypeInvalid, nil)
-	ErrBidVersion = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
-	ErrBidCreator = NewTypedError("user is not a creator", ErrorTypeForbidden, nil)
+	ErrBidOffset       = NewTypedError("bid offset must be >= 0", ErrorTypeInvalid, nil)
+	ErrBidVersion      = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
+	ErrBidCreator      = NewTypedError("user is not a creator", ErrorTypeForbidden, nil)
+	ErrBidNotPublished = NewTypedError("bid is not published", ErrorTypeInvalid, nil)
 )
 
 type Bid interface {

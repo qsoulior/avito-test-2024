@@ -32,7 +32,7 @@ func (r *organizationPG) GetByID(ctx context.Context, organizationID uuid.UUID) 
 }
 
 func (r *organizationPG) GetByEmployeeID(ctx context.Context, employeeID uuid.UUID) ([]entity.Organization, error) {
-	const query = `SELECT (o.id, o.name, o.description, o.type, o.created_at, o.updated_at) 
+	const query = `SELECT o.id, o.name, o.description, o.type, o.created_at, o.updated_at
 		FROM organization o JOIN organization_responsible r ON o.id = r.organization_id
 		WHERE r.user_id = $1`
 

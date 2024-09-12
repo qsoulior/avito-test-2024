@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -44,7 +45,7 @@ func HandleServiceError(w http.ResponseWriter, err error) {
 			WriteReason(w, code, reason.String())
 			return
 		}
-		panic(serviceErr.Unwrap())
+		panic(fmt.Errorf("%s: %w", serviceErr.Error(), serviceErr.Unwrap()))
 	}
 
 	// Panic must be recovered by RecovererMiddleware.
