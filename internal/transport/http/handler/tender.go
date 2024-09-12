@@ -61,7 +61,7 @@ func (r *TendersResp) FromTenders(tenders []entity.Tender) {
 }
 
 // TenderGetByServiceType
-// GET /tenders
+// GET /tenders.
 type TenderGetByServiceType struct {
 	Service service.Tender
 }
@@ -90,7 +90,7 @@ func (h TenderGetByServiceType) ServeHTTP(w http.ResponseWriter, r *http.Request
 }
 
 // TenderCreate
-// POST /tenders/new
+// POST /tenders/new.
 type TenderCreate struct {
 	Service service.Tender
 }
@@ -119,7 +119,7 @@ func (h TenderCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // TenderGetByCreator
-// GET /tenders/my
+// GET /tenders/my.
 type TenderGetByCreator struct {
 	Service service.Tender
 }
@@ -145,7 +145,7 @@ func (h TenderGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // TenderGetStatus
-// GET /tenders/{tenderId}/status
+// GET /tenders/{tenderId}/status.
 type TenderGetStatus struct {
 	Service service.Tender
 }
@@ -171,7 +171,7 @@ func (h TenderGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // TenderUpdateStatus
-// PUT /tenders/{tenderId}/status
+// PUT /tenders/{tenderId}/status.
 type TenderUpdateStatus struct {
 	Service service.Tender
 }
@@ -201,7 +201,7 @@ func (h TenderUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // TenderUpdate
-// PATCH /tenders/{tenderId}/edit
+// PATCH /tenders/{tenderId}/edit.
 type TenderUpdate struct {
 	Service service.Tender
 }
@@ -218,7 +218,7 @@ func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Parse request body.
 	var data entity.TenderData
 	d := json.NewDecoder(r.Body)
-	if err := d.Decode(&data); err != nil {
+	if err = d.Decode(&data); err != nil {
 		WriteReason(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -237,7 +237,7 @@ func (h TenderUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // TenderRollback
-// PUT /tenders/{tenderId}/rollback/{version}
+// PUT /tenders/{tenderId}/rollback/{version}.
 type TenderRollback struct {
 	Service service.Tender
 }

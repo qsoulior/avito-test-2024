@@ -31,7 +31,13 @@ func LoggerMiddleware(logger *slog.Logger) Middleware {
 			lw := &loggerWriter{ResponseWriter: w}
 			start := time.Now()
 			next.ServeHTTP(lw, r)
-			logger.Info(r.RemoteAddr, "method", r.Method, "url", r.URL.String(), "proto", r.Proto, "code", lw.code, "size", lw.size, "time", time.Since(start))
+			logger.Info(r.RemoteAddr,
+				"method", r.Method,
+				"url", r.URL.String(),
+				"proto", r.Proto,
+				"code", lw.code,
+				"size", lw.size,
+				"time", time.Since(start))
 		})
 	}
 }

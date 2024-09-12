@@ -27,7 +27,7 @@ func Migrate(cfg *Config, logger *slog.Logger) int {
 
 	defer m.Close()
 
-	if err := m.Up(); err != nil {
+	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			logger.Info("migrations have no changes")
 			return 0

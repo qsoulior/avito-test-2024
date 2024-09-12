@@ -55,5 +55,7 @@ var (
 
 type BidReview interface {
 	Create(ctx context.Context, username string, bidID uuid.UUID, description string) (*entity.BidReview, error)
-	GetByBidCreator(ctx context.Context, requesterUsername string, creatorUsername string, tenderID uuid.UUID, limit int, offset int) ([]entity.BidReview, error)
+	GetByBidCreator(ctx context.Context,
+		requesterUsername string, creatorUsername string, tenderID uuid.UUID,
+		limit int, offset int) ([]entity.BidReview, error)
 }

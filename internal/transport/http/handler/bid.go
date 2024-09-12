@@ -66,7 +66,7 @@ func (r *BidsResp) FromBids(bids []entity.Bid) {
 }
 
 // BidCreate
-// POST /bids/new
+// POST /bids/new.
 type BidCreate struct {
 	Service service.Bid
 }
@@ -95,7 +95,7 @@ func (h BidCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidGetByCreator
-// GET /bids/my
+// GET /bids/my.
 type BidGetByCreator struct {
 	Service service.Bid
 }
@@ -121,7 +121,7 @@ func (h BidGetByCreator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidGetByTender
-// GET /bids/{tenderId}/list
+// GET /bids/{tenderId}/list.
 type BidGetByTender struct {
 	Service service.Bid
 }
@@ -152,7 +152,7 @@ func (h BidGetByTender) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidGetStatus
-// GET /bids/{bidId}/status
+// GET /bids/{bidId}/status.
 type BidGetStatus struct {
 	Service service.Bid
 }
@@ -178,7 +178,7 @@ func (h BidGetStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidUpdateStatus
-// PUT /bids/{bidId}/status
+// PUT /bids/{bidId}/status.
 type BidUpdateStatus struct {
 	Service service.Bid
 }
@@ -208,7 +208,7 @@ func (h BidUpdateStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidUpdate
-// PATCH /bids/{bidId}/edit
+// PATCH /bids/{bidId}/edit.
 type BidUpdate struct {
 	Service service.Bid
 }
@@ -225,7 +225,7 @@ func (h BidUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Parse request body.
 	var data entity.BidData
 	d := json.NewDecoder(r.Body)
-	if err := d.Decode(&data); err != nil {
+	if err = d.Decode(&data); err != nil {
 		WriteReason(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -244,7 +244,7 @@ func (h BidUpdate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidSubmitDecision
-// PUT /bids/{bidId}/submit_decision
+// PUT /bids/{bidId}/submit_decision.
 type BidSubmitDecision struct {
 	Service service.Bid
 }
@@ -274,7 +274,7 @@ func (h BidSubmitDecision) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidRollback
-// PUT /bids/{bidId}/rollback/{version}
+// PUT /bids/{bidId}/rollback/{version}.
 type BidRollback struct {
 	Service service.Bid
 }
@@ -324,7 +324,7 @@ func (r *BidReviewsResp) FromBidReviews(reviews []entity.BidReview) {
 }
 
 // BidReviewCreate
-// PUT /bids/{bidId}/feedback
+// PUT /bids/{bidId}/feedback.
 type BidReviewCreate struct {
 	Service service.BidReview
 }
@@ -354,7 +354,7 @@ func (h BidReviewCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // BidReviewGetByBidCreator
-// GET /bids/{tenderId}/reviews
+// GET /bids/{tenderId}/reviews.
 type BidReviewGetByBidCreator struct {
 	Service service.BidReview
 }

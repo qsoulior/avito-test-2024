@@ -21,7 +21,7 @@ func NewTenderV1(tenderRepo repo.Tender, employeeService Employee) Tender {
 	return &tenderV1{tenderRepo, employeeService}
 }
 
-// GetByID
+// GetByID.
 func (s *tenderV1) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Tender, error) {
 	tender, err := s.tenderRepo.GetByID(ctx, tenderID)
 	if err != nil {
@@ -45,8 +45,9 @@ func (s *tenderV1) getLimit(limit int) (int, error) {
 	return limit, nil
 }
 
-// GetByServiceType
-func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
+// GetByServiceType.
+func (s *tenderV1) GetByServiceType(ctx context.Context,
+	serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {
@@ -60,7 +61,7 @@ func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 
 	// Validate tender service type.
 	for _, serviceType := range serviceTypes {
-		err := serviceType.Validate()
+		err = serviceType.Validate()
 		if err != nil {
 			return nil, NewTypedError("tender service types is invalid", ErrorTypeInvalid, err)
 		}
@@ -75,7 +76,7 @@ func (s *tenderV1) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 	return tenders, nil
 }
 
-// Create
+// Create.
 func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Tender) (*entity.Tender, error) {
 	// Validate tender data.
 	err := tender.Validate()
@@ -102,8 +103,9 @@ func (s *tenderV1) Create(ctx context.Context, username string, tender entity.Te
 	return createdTender, nil
 }
 
-// GetByCreatorUsername
-func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Tender, error) {
+// GetByCreatorUsername.
+func (s *tenderV1) GetByCreatorUsername(ctx context.Context,
+	username string, limit int, offset int) ([]entity.Tender, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {
@@ -130,7 +132,7 @@ func (s *tenderV1) GetByCreatorUsername(ctx context.Context, username string, li
 	return tenders, nil
 }
 
-// GetStatus
+// GetStatus.
 func (s *tenderV1) GetStatus(ctx context.Context, username string, tenderID uuid.UUID) (*entity.TenderStatus, error) {
 	// Verify user not associated with organization.
 	_, err := s.employeeService.GetUser(ctx, username)
@@ -147,8 +149,9 @@ func (s *tenderV1) GetStatus(ctx context.Context, username string, tenderID uuid
 	return &tender.Status, nil
 }
 
-// UpdateStatus
-func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
+// UpdateStatus.
+func (s *tenderV1) UpdateStatus(ctx context.Context,
+	username string, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
 	// Validate tender status.
 	if err := status.Validate(); err != nil {
 		return nil, NewTypedError("tender status is invalid", ErrorTypeInvalid, err)
@@ -175,8 +178,9 @@ func (s *tenderV1) UpdateStatus(ctx context.Context, username string, tenderID u
 	return tender, nil
 }
 
-// Update
-func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UUID, data entity.TenderData) (*entity.Tender, error) {
+// Update.
+func (s *tenderV1) Update(ctx context.Context,
+	username string, tenderID uuid.UUID, data entity.TenderData) (*entity.Tender, error) {
 	// Validate tender data.
 	if err := data.Validate(); err != nil {
 		return nil, NewTypedError("tender data is invalid", ErrorTypeInvalid, err)
@@ -203,8 +207,9 @@ func (s *tenderV1) Update(ctx context.Context, username string, tenderID uuid.UU
 	return tender, nil
 }
 
-// Rollback
-func (s *tenderV1) Rollback(ctx context.Context, username string, tenderID uuid.UUID, version int) (*entity.Tender, error) {
+// Rollback.
+func (s *tenderV1) Rollback(ctx context.Context,
+	username string, tenderID uuid.UUID, version int) (*entity.Tender, error) {
 	// Validate tender version.
 	if version < 1 {
 		return nil, ErrTenderVersion

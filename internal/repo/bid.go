@@ -26,5 +26,6 @@ type BidReview interface {
 
 type BidDecision interface {
 	Create(ctx context.Context, decision entity.BidDecision) (*entity.BidDecision, error)
-	GetByBidID(ctx context.Context, bidID uuid.UUID, organizationID uuid.UUID, decisionType *entity.BidStatus) ([]entity.BidDecision, error)
+	GetByBidID(ctx context.Context,
+		bidID uuid.UUID, organizationID uuid.UUID, decisionType *entity.BidStatus) ([]entity.BidDecision, error)
 }

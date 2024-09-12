@@ -13,7 +13,7 @@ func NewEnvError(env string) error { return &EnvError{env} }
 
 func (e *EnvError) Error() string { return fmt.Sprintf("could not find env variable: %s", e.env) }
 
-// Config
+// Config.
 type Config struct {
 	Server   ConfigServer
 	Postgres ConfigPostgres
@@ -27,73 +27,73 @@ func (c *Config) ParseEnv() error {
 	return c.Postgres.ParseEnv()
 }
 
-// ConfigServer
+// ConfigServer.
 type ConfigServer struct {
 	Addr string
 }
 
 const (
-	SERVER_ADDRESS = "SERVER_ADDRESS"
+	EnvServerAddress = "SERVER_ADDRESS"
 )
 
 func (c *ConfigServer) ParseEnv() error {
-	addr, ok := os.LookupEnv(SERVER_ADDRESS)
+	addr, ok := os.LookupEnv(EnvServerAddress)
 	if !ok {
-		return NewEnvError(SERVER_ADDRESS)
+		return NewEnvError(EnvServerAddress)
 	}
 
 	c.Addr = addr
 	return nil
 }
 
-// ConfigPostgres
+// ConfigPostgres.
 type ConfigPostgres struct {
 	Conn       string
 	Migrations string
 }
 
 const (
-	POSTGRES_CONN       = "POSTGRES_CONN"
-	POSTGRES_USERNAME   = "POSTGRES_USERNAME"
-	POSTGRES_PASSWORD   = "POSTGRES_PASSWORD"
-	POSTGRES_HOST       = "POSTGRES_HOST"
-	POSTGRES_PORT       = "POSTGRES_PORT"
-	POSTGRES_DATABASE   = "POSTGRES_DATABASE"
-	POSTGRES_MIGRATIONS = "POSTGRES_MIGRATIONS"
+	EnvPostgresConn       = "POSTGRES_CONN"
+	EnvPostgresUsername   = "POSTGRES_USERNAME"
+	EnvPostgresPassword   = "POSTGRES_PASSWORD"
+	EnvPostgresHost       = "POSTGRES_HOST"
+	EnvPostgresPort       = "POSTGRES_PORT"
+	EnvPostgresDatabase   = "POSTGRES_DATABASE"
+	EnvPostgresMigrations = "POSTGRES_MIGRATIONS"
 )
 
 func (c *ConfigPostgres) ParseEnv() error {
-	c.Migrations = os.Getenv(POSTGRES_MIGRATIONS)
+	c.Migrations = os.Getenv(EnvPostgresMigrations)
 
-	conn, ok := os.LookupEnv(POSTGRES_CONN)
+	conn, ok := os.LookupEnv(EnvPostgresConn)
 	if ok {
 		c.Conn = conn
 		return nil
 	}
 
-	username, ok := os.LookupEnv(POSTGRES_USERNAME)
+	username, ok := os.LookupEnv(EnvPostgresUsername)
 	if !ok {
-		return NewEnvError(POSTGRES_USERNAME)
+		return NewEnvError(EnvPostgresUsername)
 	}
 
-	password, ok := os.LookupEnv(POSTGRES_PASSWORD)
+	password, ok := os.LookupEnv(EnvPostgresPassword)
 	if !ok {
-		return NewEnvError(POSTGRES_PASSWORD)
+		return NewEnvError(EnvPostgresPassword)
 	}
 
-	host, ok := os.LookupEnv(POSTGRES_HOST)
+	host, ok := os.LookupEnv(EnvPostgresHost)
 	if !ok {
-		return NewEnvError(POSTGRES_HOST)
+		return NewEnvError(EnvPostgresHost)
 	}
 
-	port, ok := os.LookupEnv(POSTGRES_PORT)
+	port, ok := os.LookupEnv(EnvPostgresPort)
 	if !ok {
-		return NewEnvError(POSTGRES_PORT)
+		return NewEnvError(EnvPostgresPort)
 	}
 
-	database, ok := os.LookupEnv(POSTGRES_DATABASE)
+	database, ok := os.LookupEnv(EnvPostgresDatabase)
 	if !ok {
-		return NewEnvError(POSTGRES_DATABASE)
+		return NewEnvError(EnvPostgresDatabase)
 	}
 
 	c.Conn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username, password, host, port, database)
@@ -101,7 +101,7 @@ func (c *ConfigPostgres) ParseEnv() error {
 	return nil
 }
 
-// NewConfig
+// NewConfig.
 func NewConfig() (*Config, error) {
 	cfg := new(Config)
 	err := cfg.ParseEnv()

@@ -31,7 +31,8 @@ func (s *employeeV1) GetUser(ctx context.Context, username string) (*entity.Empl
 	return employee, nil
 }
 
-func (s *employeeV1) GetEmployee(ctx context.Context, username string, organizationID uuid.UUID) (*entity.Employee, error) {
+func (s *employeeV1) GetEmployee(ctx context.Context,
+	username string, organizationID uuid.UUID) (*entity.Employee, error) {
 	employee, err := s.GetUser(ctx, username)
 	if err != nil {
 		return nil, err

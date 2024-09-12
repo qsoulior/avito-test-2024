@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// bidV1
+// bidV1.
 type bidV1 struct {
 	bidRepo         repo.Bid
 	decisionRepo    repo.BidDecision
@@ -24,7 +24,7 @@ func NewBidV1(bidRepo repo.Bid, decisionRepo repo.BidDecision, tenderService Ten
 	return &bidV1{bidRepo, decisionRepo, tenderService, employeeService}
 }
 
-// GetByID
+// GetByID.
 func (s *bidV1) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, error) {
 	bid, err := s.bidRepo.GetByID(ctx, bidID)
 	if err != nil {
@@ -36,7 +36,7 @@ func (s *bidV1) GetByID(ctx context.Context, bidID uuid.UUID) (*entity.Bid, erro
 	return bid, nil
 }
 
-// HasByCreatorAndTender
+// HasByCreatorAndTender.
 func (s *bidV1) HasByCreatorAndTender(ctx context.Context, creatorID uuid.UUID, tenderID uuid.UUID) error {
 	err := s.bidRepo.HasByCreatorID(ctx, creatorID, tenderID)
 	if err != nil {
@@ -49,7 +49,7 @@ func (s *bidV1) HasByCreatorAndTender(ctx context.Context, creatorID uuid.UUID, 
 	return nil
 }
 
-// Create
+// Create.
 func (s *bidV1) Create(ctx context.Context, username string, bid entity.Bid) (*entity.Bid, error) {
 	// Validate data to create bid.
 	err := bid.Validate()
@@ -105,8 +105,9 @@ func (s *bidV1) getLimit(limit int) (int, error) {
 	return limit, nil
 }
 
-// GetByCreatorUsername
-func (s *bidV1) GetByCreatorUsername(ctx context.Context, username string, limit int, offset int) ([]entity.Bid, error) {
+// GetByCreatorUsername.
+func (s *bidV1) GetByCreatorUsername(ctx context.Context,
+	username string, limit int, offset int) ([]entity.Bid, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {
@@ -133,8 +134,9 @@ func (s *bidV1) GetByCreatorUsername(ctx context.Context, username string, limit
 	return bids, nil
 }
 
-// GetByTenderID
-func (s *bidV1) GetByTenderID(ctx context.Context, username string, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
+// GetByTenderID.
+func (s *bidV1) GetByTenderID(ctx context.Context,
+	username string, tenderID uuid.UUID, limit int, offset int) ([]entity.Bid, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {
@@ -167,7 +169,7 @@ func (s *bidV1) GetByTenderID(ctx context.Context, username string, tenderID uui
 	return bids, nil
 }
 
-// GetStatus
+// GetStatus.
 func (s *bidV1) GetStatus(ctx context.Context, username string, bidID uuid.UUID) (*entity.BidStatus, error) {
 	// Verify user not associated with organization.
 	_, err := s.employeeService.GetUser(ctx, username)
@@ -184,8 +186,9 @@ func (s *bidV1) GetStatus(ctx context.Context, username string, bidID uuid.UUID)
 	return &bid.Status, nil
 }
 
-// UpdateStatus
-func (s *bidV1) UpdateStatus(ctx context.Context, username string, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error) {
+// UpdateStatus.
+func (s *bidV1) UpdateStatus(ctx context.Context,
+	username string, bidID uuid.UUID, status entity.BidStatus) (*entity.Bid, error) {
 	// Validate bid status.
 	if err := status.Validate(); err != nil {
 		return nil, NewTypedError("bid status is invalid", ErrorTypeInvalid, err)
@@ -227,8 +230,9 @@ func (s *bidV1) UpdateStatus(ctx context.Context, username string, bidID uuid.UU
 	return bid, nil
 }
 
-// Update
-func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error) {
+// Update.
+func (s *bidV1) Update(ctx context.Context,
+	username string, bidID uuid.UUID, data entity.BidData) (*entity.Bid, error) {
 	// Validate bid data.
 	if err := data.Validate(); err != nil {
 		return nil, NewTypedError("bid data is invalid", ErrorTypeInvalid, err)
@@ -270,8 +274,9 @@ func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, da
 	return bid, nil
 }
 
-// SubmitDecision
-func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.UUID, decisionType entity.BidStatus) (*entity.Bid, error) {
+// SubmitDecision.
+func (s *bidV1) SubmitDecision(ctx context.Context,
+	username string, bidID uuid.UUID, decisionType entity.BidStatus) (*entity.Bid, error) {
 	// Validate bid decision type.
 	if err := decisionType.ValidateDesicion(); err != nil {
 		return nil, NewTypedError("bid decision is invalid", ErrorTypeInvalid, err)
@@ -353,7 +358,7 @@ func (s *bidV1) SubmitDecision(ctx context.Context, username string, bidID uuid.
 	return bid, nil
 }
 
-// Rollback
+// Rollback.
 func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, version int) (*entity.Bid, error) {
 	// Validate bid version.
 	if version < 1 {
@@ -394,7 +399,7 @@ func (s *bidV1) Rollback(ctx context.Context, username string, bidID uuid.UUID, 
 	return bid, nil
 }
 
-// bidReviewV1
+// bidReviewV1.
 type bidReviewV1 struct {
 	reviewRepo      repo.BidReview
 	bidService      Bid
@@ -402,15 +407,17 @@ type bidReviewV1 struct {
 	employeeService Employee
 }
 
-func NewBidReviewV1(reviewRepo repo.BidReview, bidService Bid, tenderService Tender, employeeService Employee) BidReview {
+func NewBidReviewV1(
+	reviewRepo repo.BidReview, bidService Bid, tenderService Tender, employeeService Employee) BidReview {
 	if reviewRepo == nil || bidService == nil || tenderService == nil || employeeService == nil {
 		return nil
 	}
 	return &bidReviewV1{reviewRepo, bidService, tenderService, employeeService}
 }
 
-// Create
-func (s *bidReviewV1) Create(ctx context.Context, username string, bidID uuid.UUID, description string) (*entity.BidReview, error) {
+// Create.
+func (s *bidReviewV1) Create(ctx context.Context,
+	username string, bidID uuid.UUID, description string) (*entity.BidReview, error) {
 	// Get bid by id.
 	bid, err := s.bidService.GetByID(ctx, bidID)
 	if err != nil {
@@ -437,7 +444,7 @@ func (s *bidReviewV1) Create(ctx context.Context, username string, bidID uuid.UU
 		CreatorID:      employee.ID,
 	}
 
-	if err := review.Validate(); err != nil {
+	if err = review.Validate(); err != nil {
 		return nil, NewTypedError("bid review data is invalid", ErrorTypeInvalid, err)
 	}
 
@@ -462,8 +469,10 @@ func (s *bidReviewV1) getLimit(limit int) (int, error) {
 	return limit, nil
 }
 
-// GetByBidCreator
-func (s *bidReviewV1) GetByBidCreator(ctx context.Context, requesterUsername string, creatorUsername string, tenderID uuid.UUID, limit int, offset int) ([]entity.BidReview, error) {
+// GetByBidCreator.
+func (s *bidReviewV1) GetByBidCreator(ctx context.Context,
+	requesterUsername string, creatorUsername string, tenderID uuid.UUID,
+	limit int, offset int) ([]entity.BidReview, error) {
 	// Validate limit.
 	limit, err := s.getLimit(limit)
 	if err != nil {

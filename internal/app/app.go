@@ -34,7 +34,13 @@ func Run() int {
 	}
 
 	// database connection
-	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{"organization_type", "tender_service_type", "tender_status", "bid_status", "bid_author_type", "bid_decision_type"}))
+	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{
+		"organization_type",
+		"tender_service_type",
+		"tender_status",
+		"bid_status",
+		"bid_author_type",
+		"bid_decision_type"}))
 	if err != nil {
 		logger.Error("failed to establish db conn", "err", err)
 		return 1
@@ -69,8 +75,8 @@ func Run() int {
 	// graceful shutdown
 	select {
 	case <-ctx.Done():
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		err := server.Stop(ctx)
+		tctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		err = server.Stop(tctx)
 		if err != nil {
 			logger.Error("failed to stop http server", "err", err)
 		} else {
@@ -78,7 +84,7 @@ func Run() int {
 		}
 		cancel()
 		return 0
-	case err := <-server.Err():
+	case err = <-server.Err():
 		logger.Error("http server returned error", "err", err)
 		return 1
 	}

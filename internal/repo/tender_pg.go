@@ -21,9 +21,11 @@ func NewTenderPG(pg *postgres.Postgres) Tender {
 }
 
 func (r *tenderPG) Create(ctx context.Context, tender entity.Tender) (*entity.Tender, error) {
-	const query = `INSERT INTO tender (name, description, service_type, status, organization_id, creator_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
+	const query = `INSERT INTO tender (name, description, service_type, status, organization_id, creator_id) 
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`
 
-	rows, err := r.Pool.Query(ctx, query, tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID)
+	rows, err := r.Pool.Query(ctx, query,
+		tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,8 @@ func (r *tenderPG) GetByID(ctx context.Context, tenderID uuid.UUID) (*entity.Ten
 	return collectOneRow[entity.Tender](rows)
 }
 
-func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
+func (r *tenderPG) GetByServiceType(ctx context.Context,
+	serviceTypes []entity.TenderServiceType, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT * FROM
 		(SELECT DISTINCT ON (id) * 
 		FROM tender 
@@ -59,7 +62,8 @@ func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Tender])
 }
 
-func (r *tenderPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit int, offset int) ([]entity.Tender, error) {
+func (r *tenderPG) GetByCreatorID(ctx context.Context,
+	creatorID uuid.UUID, limit int, offset int) ([]entity.Tender, error) {
 	const query = `SELECT * FROM
 		(SELECT DISTINCT ON (id) * 
 		FROM tender WHERE creator_id = $1 
@@ -107,9 +111,13 @@ func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data entity.T
 
 	tender.Version++
 
-	const insertQuery = `INSERT INTO tender (id, name, description, service_type, status, organization_id, creator_id, version) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
+	const insertQuery = `INSERT INTO tender 
+		(id, name, description, service_type, status, organization_id, creator_id, version) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`
 
-	rows, err = tx.Query(ctx, insertQuery, tender.ID, tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID, tender.Version)
+	rows, err = tx.Query(ctx, insertQuery,
+		tender.ID, tender.Name, tender.Description, tender.ServiceType,
+		tender.Status, tender.OrganizationID, tender.CreatorID, tender.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +135,8 @@ func (r *tenderPG) Update(ctx context.Context, tenderID uuid.UUID, data entity.T
 	return tender, nil
 }
 
-func (r *tenderPG) UpdateStatus(ctx context.Context, tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
+func (r *tenderPG) UpdateStatus(ctx context.Context,
+	tenderID uuid.UUID, status entity.TenderStatus) (*entity.Tender, error) {
 	const query = `UPDATE tender 
 		SET status = $2
 		WHERE id = $1 AND version = (SELECT MAX(version) FROM tender WHERE id = $1)
@@ -164,7 +173,9 @@ func (r *tenderPG) Rollback(ctx context.Context, tenderID uuid.UUID, version int
 		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT MAX(version) FROM tender WHERE id = $1) + 1) 
 		RETURNING *`
 
-	rows, err = tx.Query(ctx, insertQuery, tender.ID, tender.Name, tender.Description, tender.ServiceType, tender.Status, tender.OrganizationID, tender.CreatorID)
+	rows, err = tx.Query(ctx, insertQuery,
+		tender.ID, tender.Name, tender.Description, tender.ServiceType, tender.Status,
+		tender.OrganizationID, tender.CreatorID)
 	if err != nil {
 		return nil, err
 	}

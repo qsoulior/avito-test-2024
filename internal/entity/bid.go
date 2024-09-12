@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// BidStatus
+// BidStatus.
 type BidStatus string
 
 func (s BidStatus) Validate() error {
@@ -38,7 +38,7 @@ var (
 	BidDecisionTypes = []BidStatus{BidApproved, BidRejected}
 )
 
-// BidAuthorType
+// BidAuthorType.
 type BidAuthorType string
 
 func (t BidAuthorType) Validate() error {
@@ -55,7 +55,7 @@ const (
 
 var BidAuthorTypes = []BidAuthorType{BidOrganization, BidUser}
 
-// Bid
+// Bid.
 type Bid struct {
 	ID             uuid.UUID
 	Name           string
@@ -92,10 +92,10 @@ var (
 	ErrBidReviewDescription = fmt.Errorf("bid review description is too long (max %d)", BidReviewDescriptionLength)
 )
 
-// BidData
+// BidData.
 type BidData struct {
-	Name        *string
-	Description *string
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
 }
 
 func (d BidData) Validate() error {
@@ -110,7 +110,7 @@ func (d BidData) Validate() error {
 	return nil
 }
 
-// BidReview
+// BidReview.
 type BidReview struct {
 	ID             uuid.UUID
 	Description    string
@@ -127,7 +127,7 @@ func (r BidReview) Validate() error {
 	return nil
 }
 
-// BidDecision
+// BidDecision.
 type BidDecision struct {
 	ID             uuid.UUID
 	BidID          uuid.UUID

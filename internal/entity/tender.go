@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// TenderServiceType
+// TenderServiceType.
 type TenderServiceType string
 
 func (t TenderServiceType) Validate() error {
@@ -26,7 +26,7 @@ const (
 
 var TenderServiceTypes = []TenderServiceType{TenderConstruction, TenderDelivery, TenderManufacture}
 
-// TenderStatus
+// TenderStatus.
 type TenderStatus string
 
 func (s TenderStatus) Validate() error {
@@ -44,7 +44,7 @@ const (
 
 var TenderStatuses = []TenderStatus{TenderCreated, TenderPublished, TenderClosed}
 
-// Tender
+// Tender.
 type Tender struct {
 	ID             uuid.UUID
 	Name           string
@@ -83,11 +83,11 @@ var (
 	ErrTenderDescription = fmt.Errorf("tender description is too long (max %d)", TenderDescriptionLength)
 )
 
-// TenderData
+// TenderData.
 type TenderData struct {
-	Name        *string
-	Description *string
-	ServiceType *TenderServiceType
+	Name        *string            `json:"name"`
+	Description *string            `json:"description"`
+	ServiceType *TenderServiceType `json:"serviceType"`
 }
 
 func (d TenderData) Validate() error {

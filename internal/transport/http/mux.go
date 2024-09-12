@@ -8,7 +8,8 @@ import (
 	"git.codenrock.com/avito-testirovanie-na-backend-1270/cnrprod1725732425-team-77001/zadanie-6105/internal/transport/http/handler"
 )
 
-func NewMux(tenderService service.Tender, bidService service.Bid, reviewService service.BidReview, logger *slog.Logger) http.Handler {
+func NewMux(tenderService service.Tender, bidService service.Bid, reviewService service.BidReview,
+	logger *slog.Logger) http.Handler {
 	if tenderService == nil || bidService == nil || reviewService == nil || logger == nil {
 		return nil
 	}
