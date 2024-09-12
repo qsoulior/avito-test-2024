@@ -32,20 +32,18 @@ func (r BidReq) ToBid() entity.Bid {
 }
 
 type BidResp struct {
-	ID          uuid.UUID            `json:"id"`
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Status      entity.BidStatus     `json:"status"`
-	AuthorType  entity.BidAuthorType `json:"authorType"`
-	AuthorID    uuid.UUID            `json:"authorId"`
-	Version     int                  `json:"version"`
-	CreatedAt   time.Time            `json:"createdAt"`
+	ID         uuid.UUID            `json:"id"`
+	Name       string               `json:"name"`
+	Status     entity.BidStatus     `json:"status"`
+	AuthorType entity.BidAuthorType `json:"authorType"`
+	AuthorID   uuid.UUID            `json:"authorId"`
+	Version    int                  `json:"version"`
+	CreatedAt  time.Time            `json:"createdAt"`
 }
 
 func (r *BidResp) FromBid(bid *entity.Bid) {
 	r.ID = bid.ID
 	r.Name = bid.Name
-	r.Description = bid.Description
 	r.Status = bid.Status
 	if bid.OrganizationID != nil {
 		r.AuthorType = entity.BidOrganization
