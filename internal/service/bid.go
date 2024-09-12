@@ -23,6 +23,7 @@ var (
 	ErrBidVersion      = NewTypedError("bid version must be greater than 0", ErrorTypeInvalid, nil)
 	ErrBidCreator      = NewTypedError("user is not a creator", ErrorTypeForbidden, nil)
 	ErrBidNotPublished = NewTypedError("bid is not published", ErrorTypeInvalid, nil)
+	ErrBidCannotUpdate = NewTypedError("cannot update approved or rejected bid", ErrorTypeInvalid, nil)
 )
 
 type Bid interface {

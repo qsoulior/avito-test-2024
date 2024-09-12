@@ -34,7 +34,7 @@ const (
 )
 
 var (
-	BidStatuses      = []BidStatus{BidCreated, BidPublished, BidCanceled, BidApproved, BidRejected}
+	BidStatuses      = []BidStatus{BidCreated, BidPublished, BidCanceled}
 	BidDecisionTypes = []BidStatus{BidApproved, BidRejected}
 )
 

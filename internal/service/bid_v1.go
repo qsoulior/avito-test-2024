@@ -197,6 +197,11 @@ func (s *bidV1) UpdateStatus(ctx context.Context, username string, bidID uuid.UU
 		return nil, err
 	}
 
+	// Verify bid status.
+	if bid.Status == entity.BidApproved || bid.Status == entity.BidRejected {
+		return nil, ErrBidCannotUpdate
+	}
+
 	// Verify employee ot private user.
 	if bid.OrganizationID != nil {
 		_, err = s.employeeService.GetEmployee(ctx, username, *bid.OrganizationID)
@@ -233,6 +238,11 @@ func (s *bidV1) Update(ctx context.Context, username string, bidID uuid.UUID, da
 	bid, err := s.GetByID(ctx, bidID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Verify bid status.
+	if bid.Status == entity.BidApproved || bid.Status == entity.BidRejected {
+		return nil, ErrBidCannotUpdate
 	}
 
 	// Verify employee ot private user.
