@@ -10,4 +10,5 @@ WORKDIR /app
 COPY --from=build /build/main ./
 COPY --from=build /build/migrations ./migrations
 EXPOSE 8080
+ENV POSTGRES_MIGRATIONS migrations
 ENTRYPOINT ["./main"]
