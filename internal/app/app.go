@@ -28,6 +28,11 @@ func Run() int {
 		return 1
 	}
 
+	// run migrations
+	if code := Migrate(cfg, logger); code != 0 {
+		return code
+	}
+
 	// database connection
 	pg, err := postgres.New(ctx, cfg.Postgres.Conn, postgres.DataTypes([]string{"organization_type", "tender_service_type", "tender_status", "bid_status", "bid_author_type", "bid_decision_type"}))
 	if err != nil {
@@ -39,11 +44,6 @@ func Run() int {
 		logger.Info("db conn closed", "uri", cfg.Postgres.Conn)
 	}()
 	logger.Info("db conn established", "uri", cfg.Postgres.Conn)
-
-	// run migrations
-	if code := Migrate(cfg, logger); code != 0 {
-		return code
-	}
 
 	// repositories initialization
 	employeeRepo := repo.NewEmployeePG(pg)
