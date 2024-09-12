@@ -67,7 +67,7 @@ func (r *bidPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limit i
 		(SELECT DISTINCT ON (id) * 
 		FROM bid WHERE creator_id = $1 
 		ORDER BY id, version DESC
-		LIMIT $2 OFFSET $3)
+		LIMIT $2 OFFSET $3) AS bid
 		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
@@ -83,7 +83,7 @@ func (r *bidPG) GetByTenderID(ctx context.Context, tenderID uuid.UUID, limit int
 		(SELECT DISTINCT ON (id) * 
 		FROM bid WHERE tender_id = $1 AND status IN ('Published','Approved','Rejected') 
 		ORDER BY id, version DESC
-		LIMIT $2 OFFSET $3)
+		LIMIT $2 OFFSET $3) AS bid
 		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, tenderID, limit, offset)

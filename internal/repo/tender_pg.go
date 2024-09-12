@@ -48,7 +48,7 @@ func (r *tenderPG) GetByServiceType(ctx context.Context, serviceTypes []entity.T
 		FROM tender 
 		WHERE (array_length($1::tender_service_type[], 1) IS NULL OR service_type = ANY($1)) AND status = 'Published' 
 		ORDER BY id, version DESC
-		LIMIT $2 OFFSET $3)
+		LIMIT $2 OFFSET $3) AS tender
 		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, serviceTypes, limit, offset)
@@ -64,7 +64,7 @@ func (r *tenderPG) GetByCreatorID(ctx context.Context, creatorID uuid.UUID, limi
 		(SELECT DISTINCT ON (id) * 
 		FROM tender WHERE creator_id = $1 
 		ORDER BY id, version DESC 
-		LIMIT $2 OFFSET $3)
+		LIMIT $2 OFFSET $3) AS tender
 		ORDER BY name ASC`
 
 	rows, err := r.Pool.Query(ctx, query, creatorID, limit, offset)
