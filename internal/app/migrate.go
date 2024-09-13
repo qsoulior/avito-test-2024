@@ -37,6 +37,6 @@ func Migrate(cfg *Config, logger *slog.Logger) int {
 		return 1
 	}
 
-	logger.Info("migrations applied")
+	logger.Info("migrations applied", "uri", cfg.Postgres.Conn)
 	return 0
 }
