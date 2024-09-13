@@ -2,7 +2,7 @@ package service
 
 type ErrorType string
 
-var (
+const (
 	ErrorTypeInvalid      ErrorType = "invalid"      // 400
 	ErrorTypeUnauthorized ErrorType = "unauthorized" // 401
 	ErrorTypeForbidden    ErrorType = "forbidden"    // 403
