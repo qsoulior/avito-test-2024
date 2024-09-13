@@ -348,8 +348,8 @@ func (h BidReviewCreate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write response.
-	var resp BidReviewResp
-	resp.FromBidReview(bid)
+	var resp BidResp
+	resp.FromBid(bid)
 	WriteValue(w, http.StatusOK, resp)
 }
 

@@ -417,7 +417,7 @@ func NewBidReviewV1(
 
 // Create.
 func (s *bidReviewV1) Create(ctx context.Context,
-	username string, bidID uuid.UUID, description string) (*entity.BidReview, error) {
+	username string, bidID uuid.UUID, description string) (*entity.Bid, error) {
 	// Get bid by id.
 	bid, err := s.bidService.GetByID(ctx, bidID)
 	if err != nil {
@@ -449,12 +449,12 @@ func (s *bidReviewV1) Create(ctx context.Context,
 	}
 
 	// Create review.
-	createdReview, err := s.reviewRepo.Create(ctx, review)
+	_, err = s.reviewRepo.Create(ctx, review)
 	if err != nil {
 		return nil, NewTypedError("reviewRepo.Create", ErrorTypeInternal, err)
 	}
 
-	return createdReview, nil
+	return bid, nil
 }
 
 func (s *bidReviewV1) getLimit(limit int) (int, error) {
