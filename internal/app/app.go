@@ -68,7 +68,10 @@ func Run() int {
 
 	// http server start
 	mux := http.NewMux(tenderService, bidService, reviewService, logger)
-	server := httpserver.New(mux, httpserver.Addr(cfg.Server.Addr))
+	server := httpserver.New(mux,
+		httpserver.Addr(cfg.Server.Addr),
+		httpserver.ReadTimeout(5*time.Second),
+		httpserver.WriteTimeout(5*time.Second))
 	server.Start(ctx)
 	logger.Info("http server started", "addr", cfg.Server.Addr)
 
