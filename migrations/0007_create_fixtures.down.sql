@@ -1,0 +1,1 @@
+TRUNCATE organization_responsible, employee, organization RESTART IDENTITY CASCADE;
